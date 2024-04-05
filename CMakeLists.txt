@@ -11,4 +11,5 @@ add_executable(main.cpp
         src/sphere.h
         src/hittable_list.h
         src/rtweekend.h
-        src/interval.h)
+        src/interval.h
+        src/camera.h)

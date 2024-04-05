@@ -10,4 +10,5 @@ add_executable(main.cpp
         src/hittable.h
         src/sphere.h
         src/hittable_list.h
-        src/rtweekend.h)
+        src/rtweekend.h
+        src/interval.h)

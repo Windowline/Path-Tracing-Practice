@@ -25,7 +25,7 @@
 
 vec3 ray_color(const ray& r, const hittable& world) {
     hit_record rec;
-    if (world.hit(r, 0, infinity, rec)) {
+    if (world.hit(r, interval(0, infinity), rec)) {
         return 0.5 * (rec.normal + vec3(1, 1, 1));
     }
 
@@ -85,7 +85,6 @@ int main() {
             ray r(camera_center, ray_direction);
 
             vec3 pixel_color = ray_color(r, world);
-//            vec3 pixel_color = vec3(0, 0, 0);
 
             write_color(std::cout, pixel_color);
         }

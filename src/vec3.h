@@ -55,6 +55,7 @@ public:
         return *this *= 1/t;
     }
 
+
     double length() const {
         return sqrt(length_squared());
     }
@@ -62,14 +63,20 @@ public:
     double length_squared() const {
         return e[0]*e[0] + e[1]*e[1] + e[2]*e[2];
     }
-};
 
-// point3 is just an alias for vec3, but useful for geometric clarity in the code.
-//using point3 = vec3;
+    bool near_zero() const {
+        // Return true if the vector is close to zero in all dimensions.
+        auto s = 1e-8;
+        return (fabs(e[0]) < s) && (fabs(e[1]) < s) && (fabs(e[2]) < s);
+    }
+
+//    vec3 reflect(const vec3& v, const vec3& n) {
+//        return v - 2*dot(v,n)*n;
+//    }
+};
 
 
 // Vector Utility Functions
-
 inline std::ostream& operator<<(std::ostream &out, const vec3 &v) {
     return out << v.e[0] << ' ' << v.e[1] << ' ' << v.e[2];
 }
@@ -132,6 +139,10 @@ inline vec3 random_on_hemisphere(const vec3& normal) {
         return on_unit_sphere;
     else
         return -on_unit_sphere;
+}
+
+vec3 reflect(const vec3& v, const vec3& n) {
+    return v - 2*dot(v,n)*n;
 }
 
 #endif

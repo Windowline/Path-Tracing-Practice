@@ -1,11 +1,11 @@
 #include <iostream>
 #include "src/rtweekend.h"
 #include "src/color.h"
-
 #include "src/camera.h"
 #include "src/hittable.h"
 #include "src/hittable_list.h"
 #include "src/sphere.h"
+#include "src/material.h"
 
 vec3 ray_color(const ray& r, const hittable& world) {
     hit_record rec;
@@ -23,8 +23,15 @@ vec3 ray_color(const ray& r, const hittable& world) {
 int main() {
     hittable_list world;
 
-    world.add(make_shared<sphere>(vec3(0,0,-1), 0.5));
-    world.add(make_shared<sphere>(vec3(0,-100.5,-1), 100));
+    auto material_ground = std::make_shared<lambertian>(vec3(0.8, 0.8, 0.0));
+    auto material_center = std::make_shared<lambertian>(vec3(0.7, 0.3, 0.3));
+    auto material_left   = std::make_shared<metal>(vec3(0.8, 0.8, 0.8));
+    auto material_right  = std::make_shared<metal>(vec3(0.8, 0.6, 0.2));
+
+    world.add(std::make_shared<sphere>(vec3( 0.0, -100.5, -1.0), 100.0, material_ground));
+    world.add(std::make_shared<sphere>(vec3( 0.0,    0.0, -1.0),   0.5, material_center));
+    world.add(std::make_shared<sphere>(vec3(-1.0,    0.0, -1.0),   0.5, material_left));
+    world.add(std::make_shared<sphere>(vec3( 1.0,    0.0, -1.0),   0.5, material_right));
 
     camera cam;
 

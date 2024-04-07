@@ -1,7 +1,7 @@
 #include "rtweekend.h"
-
 #include "color.h"
 #include "hittable.h"
+#include "material.h"
 
 #include <iostream>
 
@@ -75,8 +75,15 @@ private:
             // 1 random
 //            vec3 direction = random_on_hemisphere(rec.normal);
             // 2 lamb
-            vec3 direction = rec.normal + random_unit_vector();
-            return 0.5 * ray_color(ray(rec.p, direction), depth - 1, world);
+//            vec3 direction = rec.normal + random_unit_vector();
+//            return 0.5 * ray_color(ray(rec.p, direction), depth - 1, world);
+
+            // new
+            ray scattered;
+            vec3 attenuation;
+            if (rec.mat->scatter(r, rec, attenuation, scattered))
+                return attenuation * ray_color(scattered, depth-1, world);
+            return vec3(0,0,0);
         }
 
         vec3 unit_direction = unit_vector(r.direction());

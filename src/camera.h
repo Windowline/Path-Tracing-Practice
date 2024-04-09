@@ -67,7 +67,7 @@ private:
         vec3 viewport_v = viewport_height * -v;  // Vector down viewport vertical edge
 
         // Calculate the horizontal and vertical delta vectors from pixel to pixel.
-        pixel_delta_u = viewport_u / image_width;
+        pixel_delta_u = viewport_u / image_width; // 200, 100 --> 2,  || 50, 100 --> 0.5
         pixel_delta_v = viewport_v / image_height;
 
         // Calculate the location of the upper left pixel.

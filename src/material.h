@@ -1,22 +1,22 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
+#include <memory>
 #include "rtweekend.h"
+#include "texture.h"
 
 class hit_record;
 
 class material {
 public:
-    virtual ~material() = default;
-
-    virtual bool scatter(
-            const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const = 0;
+    virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const = 0;
 };
 
 
 class lambertian : public material {
 public:
-    lambertian(const vec3& a) : albedo(a) {}
+    lambertian(const vec3& albedo) : tex(std::make_shared<solid_color>(albedo)) {}
+    lambertian(std::shared_ptr<texture> tex) : tex(tex) {}
 
     bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const override {
         auto scatter_direction = rec.normal + random_unit_vector();
@@ -26,12 +26,12 @@ public:
             scatter_direction = rec.normal;
 
         scattered = ray(rec.p, scatter_direction);
-        attenuation = albedo;
+        attenuation = tex->value(rec.u, rec.v, rec.p);
         return true;
     }
 
 private:
-    vec3 albedo;
+    std::shared_ptr<texture> tex;
 };
 
 

@@ -7,6 +7,7 @@
 #include "src/sphere.h"
 #include "src/material.h"
 #include "src/bvh.h"
+#include "src/texture.h"
 
 vec3 ray_color(const ray& r, const hittable& world) {
     hit_record rec;
@@ -24,8 +25,10 @@ vec3 ray_color(const ray& r, const hittable& world) {
 int main() {
     hittable_list world;
 
-    auto ground_material = make_shared<lambertian>(vec3(0.5, 0.5, 0.5));
-    world.add(make_shared<sphere>(vec3(0,-1000,0), 1000, ground_material));
+//    auto ground_material = make_shared<lambertian>(vec3(0.5, 0.5, 0.5));
+//    world.add(make_shared<sphere>(vec3(0,-1000,0), 1000, ground_material));
+    auto checker = make_shared<checker_texture>(0.32, vec3(.2, .3, .1), vec3(.9, .9, .9));
+    world.add(make_shared<sphere>(vec3(0,-1000,0), 1000, make_shared<lambertian>(checker)));
 
 
     for (int a = -11; a < 11; a++) {

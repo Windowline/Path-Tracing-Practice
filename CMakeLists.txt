@@ -15,4 +15,5 @@ add_executable(main.cpp
         src/camera.h
         src/material.h
         src/aabb.h
-        src/bvh.h)
+        src/bvh.h
+        src/texture.h)

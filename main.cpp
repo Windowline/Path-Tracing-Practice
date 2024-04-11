@@ -20,9 +20,7 @@ vec3 ray_color(const ray& r, const hittable& world) {
     return (1.0 - a) * vec3(1.0, 1.0, 1.0) + a * vec3(0.5, 0.7, 1.0);
 }
 
-
-
-int main() {
+void bouncing_spheres() {
     hittable_list world;
 
 //    auto ground_material = make_shared<lambertian>(vec3(0.5, 0.5, 0.5));
@@ -89,4 +87,30 @@ int main() {
 //    cam.defocus_angle = 0.6;
 //    cam.focus_dist    = 10.0;
     cam.render(world);
+}
+
+void earth() {
+    auto earth_texture = make_shared<image_texture>("res/earthmap.jpg");
+    auto earth_surface = make_shared<lambertian>(earth_texture);
+    auto globe = make_shared<sphere>(vec3(0,0,0), 2, earth_surface);
+
+    camera cam;
+
+    cam.aspect_ratio      = 16.0 / 9.0;
+    cam.image_width       = 400;
+    cam.samples_per_pixel = 100;
+    cam.max_depth         = 50;
+
+    cam.vfov     = 20;
+    cam.lookfrom = vec3(0,0,12);
+    cam.lookat   = vec3(0,0,0);
+    cam.vup      = vec3(0,1,0);
+
+    cam.render(hittable_list(globe));
+}
+
+
+int main() {
+//    bouncing_spheres();
+    earth();
 }

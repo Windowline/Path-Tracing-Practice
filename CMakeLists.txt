@@ -16,4 +16,6 @@ add_executable(main.cpp
         src/material.h
         src/aabb.h
         src/bvh.h
-        src/texture.h)
+        src/texture.h
+        src/rtw_stb_image.h
+        src/external/stb_image.h)

@@ -13,4 +13,6 @@ add_executable(main.cpp
         src/rtweekend.h
         src/interval.h
         src/camera.h
-        src/material.h)
+        src/material.h
+        src/aabb.h
+        src/bvh.h)

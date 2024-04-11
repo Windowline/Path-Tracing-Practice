@@ -6,6 +6,7 @@
 #include "src/hittable_list.h"
 #include "src/sphere.h"
 #include "src/material.h"
+#include "src/bvh.h"
 
 vec3 ray_color(const ray& r, const hittable& world) {
     hit_record rec;
@@ -25,6 +26,7 @@ int main() {
 
     auto ground_material = make_shared<lambertian>(vec3(0.5, 0.5, 0.5));
     world.add(make_shared<sphere>(vec3(0,-1000,0), 1000, ground_material));
+
 
     for (int a = -11; a < 11; a++) {
         for (int b = -11; b < 11; b++) {
@@ -63,16 +65,19 @@ int main() {
     auto material3 = make_shared<metal>(vec3(0.7, 0.6, 0.5), 0.0);
     world.add(make_shared<sphere>(vec3(4, 1, 0), 1.0, material3));
 
+    world = hittable_list(make_shared<bvh_node>(world));
+
     camera cam;
 
     cam.aspect_ratio      = 16.0 / 9.0;
-    cam.image_width       = 1200;
-    cam.samples_per_pixel = 500;
-    cam.max_depth         = 50;
 
-//    cam.image_width       = 600;
-//    cam.samples_per_pixel = 10;
-//    cam.max_depth         = 4;
+//    cam.image_width       = 1200;
+//    cam.samples_per_pixel = 500;
+//    cam.max_depth         = 50;
+
+    cam.image_width       = 200;
+    cam.samples_per_pixel = 1;
+    cam.max_depth         = 4;
 
     cam.vfov     = 20;
     cam.lookfrom = vec3(13,2,3);

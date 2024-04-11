@@ -6,9 +6,6 @@
 #include <memory>
 #include <vector>
 
-//using std::shared_ptr;
-//using std::make_shared;
-
 class hittable_list : public hittable {
 public:
     std::vector< std::shared_ptr<hittable> > objects;
@@ -20,23 +17,9 @@ public:
 
     void add(std::shared_ptr<hittable> object) {
         objects.push_back(object);
+        bbox = aabb(bbox, object->bounding_box());
     }
 
-//    bool hit(const ray& r, double ray_tmin, double ray_tmax, hit_record& rec) const override {
-//        hit_record temp_rec;
-//        bool hit_anything = false;
-//        auto closest_so_far = ray_tmax;
-//
-//        for (const auto& object : objects) {
-//            if (object->hit(r, ray_tmin, closest_so_far, temp_rec)) {
-//                hit_anything = true;
-//                closest_so_far = temp_rec.t;
-//                rec = temp_rec;
-//            }
-//        }
-//
-//        return hit_anything;
-//    }
     bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
         hit_record temp_rec;
         bool hit_anything = false;
@@ -53,6 +36,11 @@ public:
         return hit_anything;
     }
 
+    aabb bounding_box() const override { return bbox; }
+
+
+private:
+    aabb bbox;
 
 };
 

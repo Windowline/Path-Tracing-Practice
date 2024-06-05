@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(Ray_Tracing_Basic)
+project(Ray_Tracing_Advanced)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -18,4 +18,6 @@ add_executable(main.cpp
         src/bvh.h
         src/texture.h
         src/rtw_stb_image.h
-        src/external/stb_image.h)
+        src/external/stb_image.h
+        src/quad.h
+)

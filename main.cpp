@@ -8,6 +8,7 @@
 #include "src/material.h"
 #include "src/bvh.h"
 #include "src/texture.h"
+#include "src/quad.h"
 
 vec3 ray_color(const ray& r, const hittable& world) {
     hit_record rec;
@@ -18,6 +19,41 @@ vec3 ray_color(const ray& r, const hittable& world) {
     vec3 unit_direction = unit_vector(r.direction());
     auto a = 0.5*(unit_direction.y() + 1.0);
     return (1.0 - a) * vec3(1.0, 1.0, 1.0) + a * vec3(0.5, 0.7, 1.0);
+}
+
+
+void quads() {
+    hittable_list world;
+
+    // Materials
+    auto left_red     = make_shared<lambertian>(vec3(1.0, 0.2, 0.2));
+    auto back_green   = make_shared<lambertian>(vec3(0.2, 1.0, 0.2));
+    auto right_blue   = make_shared<lambertian>(vec3(0.2, 0.2, 1.0));
+    auto upper_orange = make_shared<lambertian>(vec3(1.0, 0.5, 0.0));
+    auto lower_teal   = make_shared<lambertian>(vec3(0.2, 0.8, 0.8));
+
+    // Quads
+    world.add(make_shared<quad>(vec3(-3,-2, 5), vec3(0, 0,-4), vec3(0, 4, 0), left_red));
+    world.add(make_shared<quad>(vec3(-2,-2, 0), vec3(4, 0, 0), vec3(0, 4, 0), back_green));
+    world.add(make_shared<quad>(vec3( 3,-2, 1), vec3(0, 0, 4), vec3(0, 4, 0), right_blue));
+    world.add(make_shared<quad>(vec3(-2, 3, 1), vec3(4, 0, 0), vec3(0, 0, 4), upper_orange));
+    world.add(make_shared<quad>(vec3(-2,-3, 5), vec3(4, 0, 0), vec3(0, 0,-4), lower_teal));
+
+    camera cam;
+
+    cam.aspect_ratio      = 1.0;
+    cam.image_width       = 400;
+    cam.samples_per_pixel = 100;
+    cam.max_depth         = 50;
+
+    cam.vfov     = 80;
+    cam.lookfrom = vec3(0,0,9);
+    cam.lookat   = vec3(0,0,0);
+    cam.vup      = vec3(0,1,0);
+
+//    cam.defocus_angle = 0;
+
+    cam.render(world);
 }
 
 void bouncing_spheres() {
@@ -112,5 +148,6 @@ void earth() {
 
 int main() {
 //    bouncing_spheres();
-    earth();
+//    earth();
+    quads();
 }

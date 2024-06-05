@@ -10,17 +10,76 @@
 #include "src/texture.h"
 #include "src/quad.h"
 
-vec3 ray_color(const ray& r, const hittable& world) {
-    hit_record rec;
-    if (world.hit(r, interval(0, infinity), rec)) {
-        return 0.5 * (rec.normal + vec3(1, 1, 1));
-    }
+//vec3 ray_color(const ray& r, const hittable& world) {
+//    hit_record rec;
+//    if (world.hit(r, interval(0, infinity), rec)) {
+//        return 0.5 * (rec.normal + vec3(1, 1, 1));
+//    }
+//
+//    vec3 unit_direction = unit_vector(r.direction());
+//    auto a = 0.5*(unit_direction.y() + 1.0);
+//    return (1.0 - a) * vec3(1.0, 1.0, 1.0) + a * vec3(0.5, 0.7, 1.0);
+//}
 
-    vec3 unit_direction = unit_vector(r.direction());
-    auto a = 0.5*(unit_direction.y() + 1.0);
-    return (1.0 - a) * vec3(1.0, 1.0, 1.0) + a * vec3(0.5, 0.7, 1.0);
+inline shared_ptr<hittable_list> box(const vec3& a, const vec3& b, shared_ptr<material> mat)
+{
+    // Returns the 3D box (six sides) that contains the two opposite vertices a & b.
+
+    auto sides = make_shared<hittable_list>();
+
+    // Construct the two opposite vertices with the minimum and maximum coordinates.
+    auto min = vec3(fmin(a.x(), b.x()), fmin(a.y(), b.y()), fmin(a.z(), b.z()));
+    auto max = vec3(fmax(a.x(), b.x()), fmax(a.y(), b.y()), fmax(a.z(), b.z()));
+
+    auto dx = vec3(max.x() - min.x(), 0, 0);
+    auto dy = vec3(0, max.y() - min.y(), 0);
+    auto dz = vec3(0, 0, max.z() - min.z());
+
+    sides->add(make_shared<quad>(vec3(min.x(), min.y(), max.z()),  dx,  dy, mat)); // front
+    sides->add(make_shared<quad>(vec3(max.x(), min.y(), max.z()), -dz,  dy, mat)); // right
+    sides->add(make_shared<quad>(vec3(max.x(), min.y(), min.z()), -dx,  dy, mat)); // back
+    sides->add(make_shared<quad>(vec3(min.x(), min.y(), min.z()),  dz,  dy, mat)); // left
+    sides->add(make_shared<quad>(vec3(min.x(), max.y(), max.z()),  dx, -dz, mat)); // top
+    sides->add(make_shared<quad>(vec3(min.x(), min.y(), min.z()),  dx,  dz, mat)); // bottom
+
+    return sides;
 }
 
+void cornell_box() {
+    hittable_list world;
+
+    auto red   = make_shared<lambertian>(vec3(.65, .05, .05));
+    auto white = make_shared<lambertian>(vec3(.73, .73, .73));
+    auto green = make_shared<lambertian>(vec3(.12, .45, .15));
+    auto light = make_shared<diffuse_light>(vec3(15, 15, 15));
+
+    world.add(make_shared<quad>(vec3(555,0,0), vec3(0,555,0), vec3(0,0,555), green));
+    world.add(make_shared<quad>(vec3(0,0,0), vec3(0,555,0), vec3(0,0,555), red));
+    world.add(make_shared<quad>(vec3(343, 554, 332), vec3(-130,0,0), vec3(0,0,-105), light));
+    world.add(make_shared<quad>(vec3(0,0,0), vec3(555,0,0), vec3(0,0,555), white));
+    world.add(make_shared<quad>(vec3(555,555,555), vec3(-555,0,0), vec3(0,0,-555), white));
+    world.add(make_shared<quad>(vec3(0,0,555), vec3(555,0,0), vec3(0,555,0), white));
+
+    world.add(box(vec3(130, 0, 65), vec3(295, 165, 230), white));
+    world.add(box(vec3(265, 0, 295), vec3(430, 330, 460), white));
+
+    camera cam;
+
+    cam.aspect_ratio      = 1.0;
+    cam.image_width       = 400;
+    cam.samples_per_pixel = 50;
+    cam.max_depth         = 5;
+//    cam.background        = color(0,0,0);
+
+    cam.vfov     = 40;
+    cam.lookfrom = vec3(278, 278, -800);
+    cam.lookat   = vec3(278, 278, 0);
+    cam.vup      = vec3(0,1,0);
+
+//    cam.defocus_angle = 0;
+
+    cam.render(world);
+}
 
 void quads() {
     hittable_list world;
@@ -149,5 +208,6 @@ void earth() {
 int main() {
 //    bouncing_spheres();
 //    earth();
-    quads();
+//    quads();
+    cornell_box();
 }

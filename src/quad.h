@@ -70,6 +70,7 @@ public:
         return true;
     }
 
+
 private:
     vec3 Q;
     vec3 u, v;

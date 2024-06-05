@@ -11,6 +11,7 @@ public:
     int    image_width  = 100;  // Rendered image width in pixel count
     int    samples_per_pixel = 10;   // Count of random samples for each pixel
     int    max_depth         = 10;   // Maximum number of ray bounces into scene
+    vec3  background;               // Scene background color
 
     double vfov   = 90;              // Vertical view angle (field of view)
     vec3 lookfrom = vec3(0,0,-1);  // Point camera is looking from
@@ -83,11 +84,8 @@ private:
             return vec3(0,0,0);
 
         if (world.hit(r, interval(0.001, infinity), rec)) {
-            // 1 random
-//            vec3 direction = random_on_hemisphere(rec.normal);
-            // 2 lamb
-//            vec3 direction = rec.normal + random_unit_vector();
-//            return 0.5 * ray_color(ray(rec.p, direction), depth - 1, world);
+            if (!world.hit(r, interval(0.001, infinity), rec))
+                return background;
 
             // new
             ray scattered;

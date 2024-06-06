@@ -10,17 +10,6 @@
 #include "src/texture.h"
 #include "src/quad.h"
 
-//vec3 ray_color(const ray& r, const hittable& world) {
-//    hit_record rec;
-//    if (world.hit(r, interval(0, infinity), rec)) {
-//        return 0.5 * (rec.normal + vec3(1, 1, 1));
-//    }
-//
-//    vec3 unit_direction = unit_vector(r.direction());
-//    auto a = 0.5*(unit_direction.y() + 1.0);
-//    return (1.0 - a) * vec3(1.0, 1.0, 1.0) + a * vec3(0.5, 0.7, 1.0);
-//}
-
 inline shared_ptr<hittable_list> box(const vec3& a, const vec3& b, shared_ptr<material> mat)
 {
     // Returns the 3D box (six sides) that contains the two opposite vertices a & b.
@@ -60,8 +49,17 @@ void cornell_box() {
     world.add(make_shared<quad>(vec3(555,555,555), vec3(-555,0,0), vec3(0,0,-555), white));
     world.add(make_shared<quad>(vec3(0,0,555), vec3(555,0,0), vec3(0,555,0), white));
 
-    world.add(box(vec3(130, 0, 65), vec3(295, 165, 230), white));
-    world.add(box(vec3(265, 0, 295), vec3(430, 330, 460), white));
+//    world.add(box(vec3(130, 0, 65), vec3(295, 165, 230), white));
+//    world.add(box(vec3(265, 0, 295), vec3(430, 330, 460), white));
+    shared_ptr<hittable> box1 = box(vec3(0,0,0), vec3(165,330,165), white);
+    box1 = make_shared<rotate_y>(box1, 15);
+    box1 = make_shared<translate>(box1, vec3(265,0,295));
+    world.add(box1);
+
+    shared_ptr<hittable> box2 = box(vec3(0,0,0), vec3(165,165,165), white);
+    box2 = make_shared<rotate_y>(box2, -18);
+    box2 = make_shared<translate>(box2, vec3(130,0,65));
+    world.add(box2);
 
     camera cam;
 

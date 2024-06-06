@@ -95,5 +95,12 @@ const interval interval_universe(-std::numeric_limits<double>::infinity(), +std:
 const aabb aabb::empty = aabb(interval_empty,    interval_empty,    interval_empty);
 const aabb aabb::universe = aabb(interval_universe, interval_universe, interval_universe);
 
+aabb operator+(const aabb& bbox, const vec3& offset) {
+    return aabb(bbox.x + offset.x(), bbox.y + offset.y(), bbox.z + offset.z());
+}
+
+aabb operator+(const vec3& offset, const aabb& bbox) {
+    return bbox + offset;
+}
 
 #endif

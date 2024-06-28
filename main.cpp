@@ -1,211 +1,142 @@
 #include <iostream>
 #include "src/rtweekend.h"
-#include "src/color.h"
-#include "src/camera.h"
-#include "src/hittable.h"
-#include "src/hittable_list.h"
-#include "src/sphere.h"
-#include "src/material.h"
-#include "src/bvh.h"
-#include "src/texture.h"
-#include "src/quad.h"
+#include "src/Color.hpp"
+#include "src/Camera.hpp"
+#include "src/Hittable.hpp"
+#include "src/Hittable_list.hpp"
+#include "src/Sphere.hpp"
+#include "src/Material.hpp"
+#include "src/BVH.hpp"
+#include "src/Texture.hpp"
+#include "src/Quad.hpp"
 
-inline shared_ptr<hittable_list> box(const vec3& a, const vec3& b, shared_ptr<material> mat)
+inline shared_ptr<HittableList> box(const Vector3& a, const Vector3& b, shared_ptr<Material> mat)
 {
     // Returns the 3D box (six sides) that contains the two opposite vertices a & b.
 
-    auto sides = make_shared<hittable_list>();
+    auto sides = make_shared<HittableList>();
 
     // Construct the two opposite vertices with the minimum and maximum coordinates.
-    auto min = vec3(fmin(a.x(), b.x()), fmin(a.y(), b.y()), fmin(a.z(), b.z()));
-    auto max = vec3(fmax(a.x(), b.x()), fmax(a.y(), b.y()), fmax(a.z(), b.z()));
+    auto min = Vector3(fmin(a.x(), b.x()), fmin(a.y(), b.y()), fmin(a.z(), b.z()));
+    auto max = Vector3(fmax(a.x(), b.x()), fmax(a.y(), b.y()), fmax(a.z(), b.z()));
 
-    auto dx = vec3(max.x() - min.x(), 0, 0);
-    auto dy = vec3(0, max.y() - min.y(), 0);
-    auto dz = vec3(0, 0, max.z() - min.z());
+    auto dx = Vector3(max.x() - min.x(), 0, 0);
+    auto dy = Vector3(0, max.y() - min.y(), 0);
+    auto dz = Vector3(0, 0, max.z() - min.z());
 
-    sides->add(make_shared<quad>(vec3(min.x(), min.y(), max.z()),  dx,  dy, mat)); // front
-    sides->add(make_shared<quad>(vec3(max.x(), min.y(), max.z()), -dz,  dy, mat)); // right
-    sides->add(make_shared<quad>(vec3(max.x(), min.y(), min.z()), -dx,  dy, mat)); // back
-    sides->add(make_shared<quad>(vec3(min.x(), min.y(), min.z()),  dz,  dy, mat)); // left
-    sides->add(make_shared<quad>(vec3(min.x(), max.y(), max.z()),  dx, -dz, mat)); // top
-    sides->add(make_shared<quad>(vec3(min.x(), min.y(), min.z()),  dx,  dz, mat)); // bottom
+    sides->add(make_shared<Quad>(Vector3(min.x(), min.y(), max.z()), dx, dy, mat)); // front
+    sides->add(make_shared<Quad>(Vector3(max.x(), min.y(), max.z()), -dz, dy, mat)); // right
+    sides->add(make_shared<Quad>(Vector3(max.x(), min.y(), min.z()), -dx, dy, mat)); // back
+    sides->add(make_shared<Quad>(Vector3(min.x(), min.y(), min.z()), dz, dy, mat)); // left
+    sides->add(make_shared<Quad>(Vector3(min.x(), max.y(), max.z()), dx, -dz, mat)); // top
+    sides->add(make_shared<Quad>(Vector3(min.x(), min.y(), min.z()), dx, dz, mat)); // bottom
 
     return sides;
 }
 
-void cornell_box() {
-    hittable_list world;
+//void cornellBox() {
+//    HittableList world;
+//
+//    auto red   = make_shared<Lambertian>(Vector3(.65, .05, .05));
+//    auto white = make_shared<Lambertian>(Vector3(.73, .73, .73));
+//    auto green = make_shared<Lambertian>(Vector3(.12, .45, .15));
+//    auto light = make_shared<DiffuseLight>(Vector3(15, 15, 15));
+//
+//    world.add(make_shared<Quad>(Vector3(555, 0, 0), Vector3(0, 555, 0), Vector3(0, 0, 555), green));
+//    world.add(make_shared<Quad>(Vector3(0, 0, 0), Vector3(0, 555, 0), Vector3(0, 0, 555), red));
+//    world.add(make_shared<Quad>(Vector3(343, 554, 332), Vector3(-130, 0, 0), Vector3(0, 0, -105), light));
+//    world.add(make_shared<Quad>(Vector3(0, 0, 0), Vector3(555, 0, 0), Vector3(0, 0, 555), white));
+//    world.add(make_shared<Quad>(Vector3(555, 555, 555), Vector3(-555, 0, 0), Vector3(0, 0, -555), white));
+//    world.add(make_shared<Quad>(Vector3(0, 0, 555), Vector3(555, 0, 0), Vector3(0, 555, 0), white));
+//
+////    world.add(box(vec3(130, 0, 65), vec3(295, 165, 230), white));
+////    world.add(box(vec3(265, 0, 295), vec3(430, 330, 460), white));
+//    shared_ptr<Hittable> box1 = box(Vector3(0, 0, 0), Vector3(165, 330, 165), white);
+//    box1 = make_shared<RotateY>(box1, 15);
+//    box1 = make_shared<Translate>(box1, Vector3(265, 0, 295));
+//    world.add(box1);
+//
+//    shared_ptr<Hittable> box2 = box(Vector3(0, 0, 0), Vector3(165, 165, 165), white);
+//    box2 = make_shared<RotateY>(box2, -18);
+//    box2 = make_shared<Translate>(box2, Vector3(130, 0, 65));
+//    world.add(box2);
+//
+//    Camera cam;
+//    cam.aspect_ratio      = 1.0;
+//    cam.image_width       = 400;
+//    cam.samples_per_pixel = 50;
+//    cam.max_depth         = 5;
+//    cam.vfov     = 40;
+//    cam.lookfrom = Vector3(278, 278, -800);
+//    cam.lookat   = Vector3(278, 278, 0);
+//    cam.vup      = Vector3(0, 1, 0);
+//    cam.render(world);
+//}
 
-    auto red   = make_shared<lambertian>(vec3(.65, .05, .05));
-    auto white = make_shared<lambertian>(vec3(.73, .73, .73));
-    auto green = make_shared<lambertian>(vec3(.12, .45, .15));
-    auto light = make_shared<diffuse_light>(vec3(15, 15, 15));
-
-    world.add(make_shared<quad>(vec3(555,0,0), vec3(0,555,0), vec3(0,0,555), green));
-    world.add(make_shared<quad>(vec3(0,0,0), vec3(0,555,0), vec3(0,0,555), red));
-    world.add(make_shared<quad>(vec3(343, 554, 332), vec3(-130,0,0), vec3(0,0,-105), light));
-    world.add(make_shared<quad>(vec3(0,0,0), vec3(555,0,0), vec3(0,0,555), white));
-    world.add(make_shared<quad>(vec3(555,555,555), vec3(-555,0,0), vec3(0,0,-555), white));
-    world.add(make_shared<quad>(vec3(0,0,555), vec3(555,0,0), vec3(0,555,0), white));
-
-//    world.add(box(vec3(130, 0, 65), vec3(295, 165, 230), white));
-//    world.add(box(vec3(265, 0, 295), vec3(430, 330, 460), white));
-    shared_ptr<hittable> box1 = box(vec3(0,0,0), vec3(165,330,165), white);
-    box1 = make_shared<rotate_y>(box1, 15);
-    box1 = make_shared<translate>(box1, vec3(265,0,295));
-    world.add(box1);
-
-    shared_ptr<hittable> box2 = box(vec3(0,0,0), vec3(165,165,165), white);
-    box2 = make_shared<rotate_y>(box2, -18);
-    box2 = make_shared<translate>(box2, vec3(130,0,65));
-    world.add(box2);
-
-    camera cam;
-
-    cam.aspect_ratio      = 1.0;
-    cam.image_width       = 400;
-    cam.samples_per_pixel = 50;
-    cam.max_depth         = 5;
-//    cam.background        = color(0,0,0);
-
-    cam.vfov     = 40;
-    cam.lookfrom = vec3(278, 278, -800);
-    cam.lookat   = vec3(278, 278, 0);
-    cam.vup      = vec3(0,1,0);
-
-//    cam.defocus_angle = 0;
-
-    cam.render(world);
-}
-
-void quads() {
-    hittable_list world;
-
-    // Materials
-    auto left_red     = make_shared<lambertian>(vec3(1.0, 0.2, 0.2));
-    auto back_green   = make_shared<lambertian>(vec3(0.2, 1.0, 0.2));
-    auto right_blue   = make_shared<lambertian>(vec3(0.2, 0.2, 1.0));
-    auto upper_orange = make_shared<lambertian>(vec3(1.0, 0.5, 0.0));
-    auto lower_teal   = make_shared<lambertian>(vec3(0.2, 0.8, 0.8));
-
-    // Quads
-    world.add(make_shared<quad>(vec3(-3,-2, 5), vec3(0, 0,-4), vec3(0, 4, 0), left_red));
-    world.add(make_shared<quad>(vec3(-2,-2, 0), vec3(4, 0, 0), vec3(0, 4, 0), back_green));
-    world.add(make_shared<quad>(vec3( 3,-2, 1), vec3(0, 0, 4), vec3(0, 4, 0), right_blue));
-    world.add(make_shared<quad>(vec3(-2, 3, 1), vec3(4, 0, 0), vec3(0, 0, 4), upper_orange));
-    world.add(make_shared<quad>(vec3(-2,-3, 5), vec3(4, 0, 0), vec3(0, 0,-4), lower_teal));
-
-    camera cam;
-
-    cam.aspect_ratio      = 1.0;
-    cam.image_width       = 400;
-    cam.samples_per_pixel = 100;
-    cam.max_depth         = 50;
-
-    cam.vfov     = 80;
-    cam.lookfrom = vec3(0,0,9);
-    cam.lookat   = vec3(0,0,0);
-    cam.vup      = vec3(0,1,0);
-
-//    cam.defocus_angle = 0;
-
-    cam.render(world);
-}
-
-void bouncing_spheres() {
-    hittable_list world;
-
-//    auto ground_material = make_shared<lambertian>(vec3(0.5, 0.5, 0.5));
-//    world.add(make_shared<sphere>(vec3(0,-1000,0), 1000, ground_material));
-    auto checker = make_shared<checker_texture>(0.32, vec3(.2, .3, .1), vec3(.9, .9, .9));
-    world.add(make_shared<sphere>(vec3(0,-1000,0), 1000, make_shared<lambertian>(checker)));
-
+void bouncingSpheres() {
+    HittableList world;
+    auto checker = make_shared<CheckerTexture>(0.4, Vector3(0.1, 0.1, 0.1), Vector3(0.9, 0.9, 0.9));
+    world.add(make_shared<Sphere>(Vector3(0, -1000, 0), 1000, make_shared<Lambertian>(checker)));
 
     for (int a = -11; a < 11; a++) {
         for (int b = -11; b < 11; b++) {
-            auto choose_mat = random_double();
-            vec3 center(a + 0.9*random_double(), 0.2, b + 0.9*random_double());
+            auto chooseMat = randomDouble();
+            Vector3 center(a + 0.9 * randomDouble(), 0.2, b + 0.9 * randomDouble());
 
-            if ((center - vec3(4, 0.2, 0)).length() > 0.9) {
-                shared_ptr<material> sphere_material;
+            if ((center - Vector3(4, 0.2, 0)).length() > 0.9) {
+                shared_ptr<Material> sphereMaterial;
 
-                if (choose_mat < 0.8) {
-                    // diffuse
-                    auto albedo = vec3::random() * vec3::random();
-                    sphere_material = make_shared<lambertian>(albedo);
-                    world.add(make_shared<sphere>(center, 0.2, sphere_material));
-                } else if (choose_mat < 0.95) {
+                if (chooseMat < 0.8) {
                     // metal
-                    auto albedo = vec3::random(0.5, 1);
-                    auto fuzz = random_double(0, 0.5);
-                    sphere_material = make_shared<metal>(albedo, fuzz);
-                    world.add(make_shared<sphere>(center, 0.2, sphere_material));
+                    auto albedo = Vector3::random(0.1, 1);
+                    auto fuzz = randomDouble(0, 0.6);
+                    sphereMaterial = make_shared<Metal>(albedo, fuzz);
+                    world.add(make_shared<Sphere>(center, randomDouble(0.1, 0.3), sphereMaterial));
+                } else if (chooseMat < 0.95) {
+                    // diffuse
+                    auto albedo = Vector3::random() * Vector3::random();
+                    sphereMaterial = make_shared<Lambertian>(albedo);
+                    world.add(make_shared<Sphere>(center, randomDouble(0.1, 0.3), sphereMaterial));
+
                 } else {
                     // glass
-                    sphere_material = make_shared<dielectric>(1.5);
-                    world.add(make_shared<sphere>(center, 0.2, sphere_material));
+                    sphereMaterial = make_shared<Dielectric>(1.5);
+                    world.add(make_shared<Sphere>(center, randomDouble(0.1, 0.3), sphereMaterial));
                 }
             }
         }
     }
 
-    auto material1 = make_shared<dielectric>(1.5);
-    world.add(make_shared<sphere>(vec3(0, 1, 0), 1.0, material1));
+    auto material1 = make_shared<Dielectric>(1.5);
+    world.add(make_shared<Sphere>(Vector3(0, 1, 0), 1.0, material1));
 
-    auto material2 = make_shared<lambertian>(vec3(0.4, 0.2, 0.1));
-    world.add(make_shared<sphere>(vec3(-4, 1, 0), 1.0, material2));
+    auto material2 = make_shared<Lambertian>(Vector3(0.2, 0.6, 0.15));
+    world.add(make_shared<Sphere>(Vector3(-4, 1, 0), 1.0, material2));
 
-    auto material3 = make_shared<metal>(vec3(0.7, 0.6, 0.5), 0.0);
-    world.add(make_shared<sphere>(vec3(4, 1, 0), 1.0, material3));
+    auto material3 = make_shared<Metal>(Vector3(0.7, 0.65, 0.55), 0.0);
+    world.add(make_shared<Sphere>(Vector3(4, 1, 0), 1.0, material3));
 
-    world = hittable_list(make_shared<bvh_node>(world));
+    world = HittableList(make_shared<BVHNode>(world));
 
-    camera cam;
+    Camera camera;
 
-    cam.aspect_ratio      = 16.0 / 9.0;
+    camera.aspect_ratio      = 16.0 / 9.0;
 
-//    cam.image_width       = 1200;
-//    cam.samples_per_pixel = 500;
-//    cam.max_depth         = 50;
+//    camera.image_width       = 1200;
+//    camera.samples_per_pixel = 500;
+//    camera.max_depth         = 50;
+    camera.image_width       = 400;
+    camera.samples_per_pixel = 16;
+    camera.max_depth         = 4;
 
-    cam.image_width       = 200;
-    cam.samples_per_pixel = 1;
-    cam.max_depth         = 4;
+    camera.vfov     = 25;
+    camera.lookfrom = Vector3(-15, 4, 5);
+    camera.lookat   = Vector3(0, 0, 0);
+    camera.vup      = Vector3(0, 1, 0);
 
-    cam.vfov     = 20;
-    cam.lookfrom = vec3(13,2,3);
-    cam.lookat   = vec3(0,0,0);
-    cam.vup      = vec3(0,1,0);
-//    cam.defocus_angle = 0.6;
-//    cam.focus_dist    = 10.0;
-    cam.render(world);
+    camera.render(world);
 }
-
-void earth() {
-    auto earth_texture = make_shared<image_texture>("res/earthmap.jpg");
-    auto earth_surface = make_shared<lambertian>(earth_texture);
-    auto globe = make_shared<sphere>(vec3(0,0,0), 2, earth_surface);
-
-    camera cam;
-
-    cam.aspect_ratio      = 16.0 / 9.0;
-    cam.image_width       = 400;
-    cam.samples_per_pixel = 100;
-    cam.max_depth         = 50;
-
-    cam.vfov     = 20;
-    cam.lookfrom = vec3(0,0,12);
-    cam.lookat   = vec3(0,0,0);
-    cam.vup      = vec3(0,1,0);
-
-    cam.render(hittable_list(globe));
-}
-
 
 int main() {
-//    bouncing_spheres();
-//    earth();
-//    quads();
-    cornell_box();
+    bouncingSpheres();
 }

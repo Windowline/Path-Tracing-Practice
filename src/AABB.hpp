@@ -2,48 +2,48 @@
 #define AABB_H
 
 #include "rtweekend.h"
-#include "interval.h"
+#include "Interval.hpp"
 
-class aabb {
+class AABB {
 public:
-    interval x, y, z;
+    Interval x, y, z;
 
-    aabb() {} // The default AABB is empty, since intervals are empty by default.
+    AABB() {} // The default AABB is empty, since intervals are empty by default.
 
-    aabb(const interval& x, const interval& y, const interval& z)
+    AABB(const Interval& x, const Interval& y, const Interval& z)
             : x(x), y(y), z(z) {
-        pad_to_minimums();
+        padMinimums();
     }
 
-    aabb(const vec3& a, const vec3& b) {
+    AABB(const Vector3& a, const Vector3& b) {
         // Treat the two points a and b as extrema for the bounding box, so we don't require a
         // particular minimum/maximum coordinate order.
 
-        x = (a[0] <= b[0]) ? interval(a[0], b[0]) : interval(b[0], a[0]);
-        y = (a[1] <= b[1]) ? interval(a[1], b[1]) : interval(b[1], a[1]);
-        z = (a[2] <= b[2]) ? interval(a[2], b[2]) : interval(b[2], a[2]);
+        x = (a[0] <= b[0]) ? Interval(a[0], b[0]) : Interval(b[0], a[0]);
+        y = (a[1] <= b[1]) ? Interval(a[1], b[1]) : Interval(b[1], a[1]);
+        z = (a[2] <= b[2]) ? Interval(a[2], b[2]) : Interval(b[2], a[2]);
 
-        pad_to_minimums();
+        padMinimums();
     }
 
-    aabb(const aabb& box0, const aabb& box1) {
-        x = interval(box0.x, box1.x);
-        y = interval(box0.y, box1.y);
-        z = interval(box0.z, box1.z);
+    AABB(const AABB& box0, const AABB& box1) {
+        x = Interval(box0.x, box1.x);
+        y = Interval(box0.y, box1.y);
+        z = Interval(box0.z, box1.z);
     }
 
-    const interval& axis_interval(int n) const {
+    const Interval& axis_interval(int n) const {
         if (n == 1) return y;
         if (n == 2) return z;
         return x;
     }
 
-    bool hit(const ray& r, interval ray_t) const {
-        const vec3& ray_orig = r.origin();
-        const vec3&   ray_dir  = r.direction();
+    bool hit(const Ray& r, Interval ray_t) const {
+        const Vector3& ray_orig = r.origin();
+        const Vector3&   ray_dir  = r.direction();
 
         for (int axis = 0; axis < 3; axis++) {
-            const interval& ax = axis_interval(axis);
+            const Interval& ax = axis_interval(axis);
             const double adinv = 1.0 / ray_dir[axis];
 
             auto t0 = (ax.min - ray_orig[axis]) * adinv;
@@ -63,7 +63,7 @@ public:
         return true;
     }
 
-    int longest_axis() const {
+    int longestAxis() const {
         // Returns the index of the longest axis of the bounding box.
 
         if (x.size() > y.size())
@@ -72,10 +72,10 @@ public:
             return y.size() > z.size() ? 1 : 2;
     }
 
-    static const aabb empty, universe;
+    static const AABB empty, universe;
 
 private:
-    void pad_to_minimums() {
+    void padMinimums() {
         // Adjust the AABB so that no side is narrower than some delta, padding if necessary.
 
         double delta = 0.0001;
@@ -89,17 +89,17 @@ private:
 //const aabb aabb::universe = aabb(interval::universe, interval::universe, interval::universe);
 
 
-const interval interval_empty   (+std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity());
-const interval interval_universe(-std::numeric_limits<double>::infinity(), +std::numeric_limits<double>::infinity());
+const Interval intervalEmpty   (+std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity());
+const Interval intervalUniverse(-std::numeric_limits<double>::infinity(), +std::numeric_limits<double>::infinity());
 
-const aabb aabb::empty = aabb(interval_empty,    interval_empty,    interval_empty);
-const aabb aabb::universe = aabb(interval_universe, interval_universe, interval_universe);
+const AABB AABB::empty = AABB(intervalEmpty, intervalEmpty, intervalEmpty);
+const AABB AABB::universe = AABB(intervalUniverse, intervalUniverse, intervalUniverse);
 
-aabb operator+(const aabb& bbox, const vec3& offset) {
-    return aabb(bbox.x + offset.x(), bbox.y + offset.y(), bbox.z + offset.z());
+AABB operator+(const AABB& bbox, const Vector3& offset) {
+    return AABB(bbox.x + offset.x(), bbox.y + offset.y(), bbox.z + offset.z());
 }
 
-aabb operator+(const vec3& offset, const aabb& bbox) {
+AABB operator+(const Vector3& offset, const AABB& bbox) {
     return bbox + offset;
 }
 

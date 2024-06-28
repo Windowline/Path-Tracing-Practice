@@ -20,11 +20,11 @@ const double pi = 3.1415926535897932385;
 
 // Utility Functions
 
-inline double degrees_to_radians(double degrees) {
+inline double degrees2radians(double degrees) {
     return degrees * pi / 180.0;
 }
 
-inline double random_double() {
+inline double randomDouble() {
     // Returns a random real in [0,1).
 //    return rand() / (RAND_MAX + 1.0);
     static std::uniform_real_distribution<double> distribution(0.0, 1.0);
@@ -32,20 +32,20 @@ inline double random_double() {
     return distribution(generator);
 }
 
-inline double random_double(double min, double max) {
+inline double randomDouble(double min, double max) {
     // Returns a random real in [min,max).
-    return min + (max-min)*random_double();
+    return min + (max-min) * randomDouble();
 }
 
-inline int random_int(int min, int max) {
+inline int randomInt(int min, int max) {
     // Returns a random integer in [min,max].
-    return int(random_double(min, max+1));
+    return int(randomDouble(min, max + 1));
 }
 
 
 // Common Headers
 
-#include "ray.h"
-#include "vec3.h"
+#include "Ray.hpp"
+#include "Vector3.hpp"
 
 #endif

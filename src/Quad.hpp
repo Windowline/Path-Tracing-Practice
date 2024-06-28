@@ -3,11 +3,11 @@
 
 #include "rtweekend.h"
 
-#include "hittable.h"
+#include "Hittable.hpp"
 
-class quad : public hittable {
+class Quad : public Hittable {
 public:
-    quad(const vec3& Q, const vec3& u, const vec3& v, shared_ptr<material> mat)
+    Quad(const Vector3& Q, const Vector3& u, const Vector3& v, shared_ptr<Material> mat)
             : Q(Q), u(u), v(v), mat(mat)
     {
         auto n = cross(u, v);
@@ -20,14 +20,14 @@ public:
 
     virtual void set_bounding_box() {
         // Compute the bounding box of all four vertices.
-        auto bbox_diagonal1 = aabb(Q, Q + u + v);
-        auto bbox_diagonal2 = aabb(Q + u, Q + v);
-        bbox = aabb(bbox_diagonal1, bbox_diagonal2);
+        auto bbox_diagonal1 = AABB(Q, Q + u + v);
+        auto bbox_diagonal2 = AABB(Q + u, Q + v);
+        bbox = AABB(bbox_diagonal1, bbox_diagonal2);
     }
 
-    aabb bounding_box() const override { return bbox; }
+    AABB boundingBox() const override { return bbox; }
 
-    bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
+    bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const override {
         auto denom = dot(normal, r.direction());
 
         // No hit if the ray is parallel to the plane.
@@ -41,24 +41,24 @@ public:
 
         // Determine the hit point lies within the planar shape using its plane coordinates.
         auto intersection = r.at(t);
-        vec3 planar_hitpt_vector = intersection - Q;
+        Vector3 planar_hitpt_vector = intersection - Q;
         auto alpha = dot(w, cross(planar_hitpt_vector, v));
         auto beta = dot(w, cross(u, planar_hitpt_vector));
 
-        if (!is_interior(alpha, beta, rec))
+        if (!isInterior(alpha, beta, rec))
             return false;
 
         // Ray hits the 2D shape; set the rest of the hit record and return true.
         rec.t = t;
         rec.p = intersection;
         rec.mat = mat;
-        rec.set_face_normal(r, normal);
+        rec.setFaceNormal(r, normal);
 
         return true;
     }
 
-    virtual bool is_interior(double a, double b, hit_record& rec) const {
-        interval unit_interval = interval(0, 1);
+    virtual bool isInterior(double a, double b, HitRecord& rec) const {
+        Interval unit_interval = Interval(0, 1);
         // Given the hit point in plane coordinates, return false if it is outside the
         // primitive, otherwise set the hit record UV coordinates and return true.
 
@@ -72,12 +72,12 @@ public:
 
 
 private:
-    vec3 Q;
-    vec3 u, v;
-    vec3 w;
-    shared_ptr<material> mat;
-    aabb bbox;
-    vec3 normal;
+    Vector3 Q;
+    Vector3 u, v;
+    Vector3 w;
+    shared_ptr<Material> mat;
+    AABB bbox;
+    Vector3 normal;
     double D;
 };
 

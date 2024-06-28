@@ -4,20 +4,20 @@ project(Ray_Tracing_Advanced)
 set(CMAKE_CXX_STANDARD 17)
 
 add_executable(main.cpp
-        src/vec3.h
-        src/color.h
-        src/ray.h
-        src/hittable.h
-        src/sphere.h
-        src/hittable_list.h
+        src/Vector3.hpp
+        src/Color.hpp
+        src/Ray.hpp
+        src/Hittable.hpp
+        src/Sphere.hpp
+        src/Hittable_list.hpp
         src/rtweekend.h
-        src/interval.h
-        src/camera.h
-        src/material.h
-        src/aabb.h
-        src/bvh.h
-        src/texture.h
+        src/Interval.hpp
+        src/Camera.hpp
+        src/Material.hpp
+        src/AABB.hpp
+        src/BVH.hpp
+        src/Texture.hpp
         src/rtw_stb_image.h
         src/external/stb_image.h
-        src/quad.h
+        src/Quad.hpp
 )

@@ -1,53 +1,53 @@
 #ifndef HITTABLE_H
 #define HITTABLE_H
-#include "interval.h"
-#include "ray.h"
+#include "Interval.hpp"
+#include "Ray.hpp"
 #include "rtweekend.h"
-#include "aabb.h"
+#include "AABB.hpp"
 
 #include <memory>
 
-class material;
+class Material;
 
-class hit_record {
+class HitRecord {
 public:
-    vec3 p;
-    vec3 normal;
-    std::shared_ptr<material> mat;
+    Vector3 p;
+    Vector3 normal;
+    std::shared_ptr<Material> mat;
     double t;
     double u;
     double v;
     bool front_face;
 
-    void set_face_normal(const ray& r, const vec3& outward_normal) {
+    void setFaceNormal(const Ray& r, const Vector3& outwardNormal) {
         // Sets the hit record normal vector.
         // NOTE: the parameter `outward_normal` is assumed to have unit length.
 
-        front_face = dot(r.direction(), outward_normal) < 0;
-        normal = front_face ? outward_normal : -outward_normal;
+        front_face = dot(r.direction(), outwardNormal) < 0;
+        normal = front_face ? outwardNormal : -outwardNormal;
     }
 };
 
-class hittable {
+class Hittable {
 public:
-    virtual bool hit(const ray& r, interval ray_t, hit_record& rec) const = 0;
+    virtual bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const = 0;
 
-    virtual aabb bounding_box() const = 0;
+    virtual AABB boundingBox() const = 0;
 };
 
 
-class translate : public hittable {
+class Translate : public Hittable {
 public:
-    translate(shared_ptr<hittable> object, const vec3& offset)
+    Translate(shared_ptr<Hittable> object, const Vector3& offset)
             : object(object), offset(offset)
     {
-        bbox = object->bounding_box() + offset;
+        bbox = object->boundingBox() + offset;
     }
 
 
-    bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
+    bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const override {
         // Move the ray backwards by the offset
-        ray offset_r(r.origin() - offset, r.direction(), r.time());
+        Ray offset_r(r.origin() - offset, r.direction(), r.time());
 
         // Determine whether an intersection exists along the offset ray (and if so, where)
         if (!object->hit(offset_r, ray_t, rec))
@@ -59,25 +59,25 @@ public:
         return true;
     }
 
-    aabb bounding_box() const override { return bbox; }
+    AABB boundingBox() const override { return bbox; }
 
 private:
-    shared_ptr<hittable> object;
-    vec3 offset;
-    aabb bbox;
+    shared_ptr<Hittable> object;
+    Vector3 offset;
+    AABB bbox;
 };
 
 
-class rotate_y : public hittable {
+class RotateY : public Hittable {
 public:
-    rotate_y(shared_ptr<hittable> object, double angle) : object(object) {
-        auto radians = degrees_to_radians(angle);
+    RotateY(shared_ptr<Hittable> object, double angle) : object(object) {
+        auto radians = degrees2radians(angle);
         sin_theta = sin(radians);
         cos_theta = cos(radians);
-        bbox = object->bounding_box();
+        bbox = object->boundingBox();
 
-        vec3 min( infinity,  infinity,  infinity);
-        vec3 max(-infinity, -infinity, -infinity);
+        Vector3 min(infinity, infinity, infinity);
+        Vector3 max(-infinity, -infinity, -infinity);
 
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {
@@ -89,7 +89,7 @@ public:
                     auto newx =  cos_theta*x + sin_theta*z;
                     auto newz = -sin_theta*x + cos_theta*z;
 
-                    vec3 tester(newx, y, newz);
+                    Vector3 tester(newx, y, newz);
 
                     for (int c = 0; c < 3; c++) {
                         min[c] = fmin(min[c], tester[c]);
@@ -99,10 +99,10 @@ public:
             }
         }
 
-        bbox = aabb(min, max);
+        bbox = AABB(min, max);
     }
 
-    bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
+    bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const override {
         // Change the ray from world space to object space
         auto origin = r.origin();
         auto direction = r.direction();
@@ -113,7 +113,7 @@ public:
         direction[0] = cos_theta*r.direction()[0] - sin_theta*r.direction()[2];
         direction[2] = sin_theta*r.direction()[0] + cos_theta*r.direction()[2];
 
-        ray rotated_r(origin, direction, r.time());
+        Ray rotated_r(origin, direction, r.time());
 
         // Determine whether an intersection exists in object space (and if so, where)
         if (!object->hit(rotated_r, ray_t, rec))
@@ -135,13 +135,13 @@ public:
         return true;
     }
 
-    aabb bounding_box() const override { return bbox; }
+    AABB boundingBox() const override { return bbox; }
 
 private:
-    shared_ptr<hittable> object;
+    shared_ptr<Hittable> object;
     double sin_theta;
     double cos_theta;
-    aabb bbox;
+    AABB bbox;
 };
 
 #endif

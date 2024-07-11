@@ -14,12 +14,13 @@ public:
         return false;
     }
 
-    virtual Vector3 emitted(double u, double v, const Vector3& p) const {
+    virtual Vector3 emitted(const Ray& r_in, const HitRecord& rec, double u, double v, const Vector3& p) const {
         return Vector3(0, 0, 0);
     }
 
     virtual double scatteringPDF(const Ray& r_in, const HitRecord& rec, const Ray& scattered) const {
-        return 0;
+//        return 0;
+        return 1 / (4 * pi);
     }
 };
 
@@ -146,7 +147,9 @@ public:
     DiffuseLight(shared_ptr<Texture> tex) : tex(tex) {}
     DiffuseLight(const Vector3& emit) : tex(make_shared<SolidColor>(emit)) {}
 
-    Vector3 emitted(double u, double v, const Vector3& p) const override {
+    Vector3 emitted(const Ray& r_in, const HitRecord& rec, double u, double v, const Vector3& p) const override {
+        if (!rec.front_face)
+            return Vector3(0, 0, 0);
         return tex->value(u, v, p);
     }
 

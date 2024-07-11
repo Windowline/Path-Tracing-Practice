@@ -88,19 +88,31 @@ private:
         // new
         Ray scattered;
         Vector3 attenuation;
-        double PDF = 1.0;
-        bool isScattered = rec.mat->scatter(r, rec, attenuation, scattered, PDF);
-        Vector3 colorFromEmission = rec.mat->emitted(rec.u, rec.v, rec.p);
+        double tmp = 1.0;
+        bool isScattered = rec.mat->scatter(r, rec, attenuation, scattered, tmp);
+        Vector3 colorFromEmission = rec.mat->emitted(r, rec, rec.u, rec.v, rec.p);
 
         if (!isScattered)
             return colorFromEmission; // color from emission
 
-        double scatteringPDF = rec.mat->scatteringPDF(r, rec, scattered);
-        assert(PDF >= 0.0 && PDF <= 1.0);
-        assert(scatteringPDF >= 0.0 && scatteringPDF <= 1.0);
+        auto on_light = Vector3(randomDouble(213,343), 554, randomDouble(227,332));
+        auto to_light = on_light - rec.p;
+        auto distance_squared = to_light.length_squared();
+        to_light = unit_vector(to_light);
 
-        Vector3 colorFromScatter = (attenuation * 1.0 * rayColor(scattered, depth - 1, world)) / 1.0;
-//        Vector3 colorFromScatter = (attenuation * scatteringPDF * rayColor(scattered, depth - 1, world)) / PDF;
+        if (dot(to_light, rec.normal) < 0)
+            return colorFromEmission;
+
+        double light_area = (343-213)*(332-227);
+        auto light_cosine = fabs(to_light.y());
+        if (light_cosine < 0.000001)
+            return colorFromEmission;
+
+        double PDF = distance_squared / (light_cosine * light_area);
+
+        double scatteringPDF = rec.mat->scatteringPDF(r, rec, scattered);
+
+        Vector3 colorFromScatter = (attenuation * scatteringPDF * rayColor(scattered, depth - 1, world)) / 1.0;
 
         return colorFromEmission + colorFromScatter;
     }

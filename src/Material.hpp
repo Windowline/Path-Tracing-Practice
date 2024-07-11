@@ -4,17 +4,22 @@
 #include <memory>
 #include "rtweekend.h"
 #include "Texture.hpp"
+#include "OBN.hpp"
 
 class HitRecord;
 
 class Material {
 public:
-    virtual bool scatter(const Ray& r_in, const HitRecord& rec, Vector3& attenuation, Ray& scattered) const {
+    virtual bool scatter(const Ray& r_in, const HitRecord& rec, Vector3& attenuation, Ray& scattered, double& pdf) const {
         return false;
     }
 
     virtual Vector3 emitted(double u, double v, const Vector3& p) const {
         return Vector3(0, 0, 0);
+    }
+
+    virtual double scatteringPDF(const Ray& r_in, const HitRecord& rec, const Ray& scattered) const {
+        return 0;
     }
 };
 
@@ -24,17 +29,46 @@ public:
     Lambertian(const Vector3& albedo) : tex(std::make_shared<SolidColor>(albedo)) {}
     Lambertian(std::shared_ptr<Texture> tex) : tex(tex) {}
 
-    bool scatter(const Ray& r_in, const HitRecord& rec, Vector3& attenuation, Ray& scattered) const override {
-        auto scatter_direction = rec.normal + randomUnitVector();
+//    bool scatter(const Ray& r_in, const HitRecord& rec, Vector3& attenuation, Ray& scattered, double& pdf) const override {
+//        OBN uvw;
+//        uvw.build_from_w(rec.normal);
+//        auto scatterDirection = uvw.local(random_cosine_direction());
+//
+//        scattered = Ray(rec.p, scatterDirection);
+//        attenuation = tex->value(rec.u, rec.v, rec.p);
+//        pdf = dot(uvw.w(), scattered.direction()) / pi; // (cos_theta / pi)
+//
+//        return true;
+//    }
 
-        // Catch degenerate scatter direction
-        if (scatter_direction.near_zero())
-            scatter_direction = rec.normal;
+    bool scatter(const Ray& r_in, const HitRecord& rec, Vector3& attenuation, Ray& scattered, double& pdf) const override {
+//        auto scatter_direction = rec.normal + randomUnitVector();
+//
+//        // Catch degenerate scatter direction
+//        if (scatter_direction.near_zero())
+//            scatter_direction = rec.normal;
+//
+//        scattered = Ray(rec.p, scatter_direction);
+//        attenuation = tex->value(rec.u, rec.v, rec.p);
 
-        scattered = Ray(rec.p, scatter_direction);
+
+        OBN uvw;
+        uvw.build_from_w(rec.normal);
+        auto scatterDirection = uvw.local(random_cosine_direction());
+
+        scattered = Ray(rec.p, scatterDirection);
         attenuation = tex->value(rec.u, rec.v, rec.p);
+        pdf = dot(uvw.w(), scattered.direction()) / pi; // (cos_theta / pi)
+
         return true;
     }
+
+
+    double scatteringPDF(const Ray& r_in, const HitRecord& rec, const Ray& scattered) const {
+        auto cos_theta = dot(rec.normal, unit_vector(scattered.direction()));
+        return cos_theta < 0 ? 0 : cos_theta/pi;
+    }
+
 
 private:
     std::shared_ptr<Texture> tex;
@@ -45,10 +79,13 @@ class Metal : public Material {
 public:
     Metal(const Vector3& a, double f) : albedo(a), fuzz(f < 1 ? f : 1) {}
 
-    bool scatter(const Ray& r_in, const HitRecord& rec, Vector3& attenuation, Ray& scattered) const override {
+    bool scatter(const Ray& r_in, const HitRecord& rec, Vector3& attenuation, Ray& scattered, double& pdf) const override {
         Vector3 reflected = reflect(unit_vector(r_in.direction()), rec.normal);
         scattered = Ray(rec.p, reflected + fuzz * randomUnitVector());
         attenuation = albedo;
+
+        pdf = 1.0/10.0; // tmp
+
         return (dot(scattered.direction(), rec.normal) > 0);
     }
 
@@ -62,7 +99,7 @@ class Dielectric : public Material {
 public:
     Dielectric(double index_of_refraction) : ir(index_of_refraction) {}
 
-    bool scatter(const Ray& r_in, const HitRecord& rec, Vector3& attenuation, Ray& scattered) const override {
+    bool scatter(const Ray& r_in, const HitRecord& rec, Vector3& attenuation, Ray& scattered, double& pdf) const override {
         attenuation = Vector3(1.0, 1.0, 1.0);
         double refraction_ratio = rec.front_face ? (1.0/ir) : ir;
 
@@ -91,6 +128,29 @@ private:
         r0 = r0*r0;
         return r0 + (1-r0)*pow((1 - cosine),5);
     }
+};
+
+
+class Isotropic : public Material {
+public:
+    Isotropic(const Vector3& albedo) : tex(make_shared<SolidColor>(albedo)) {}
+    Isotropic(shared_ptr<Texture> tex) : tex(tex) {}
+
+    bool scatter(
+            const Ray& r_in, const HitRecord& rec, Vector3& attenuation, Ray& scattered, double& pdf
+    ) const override {
+        attenuation = tex->value(rec.u, rec.v, rec.p);
+        scattered = Ray(rec.p, randomUnitVector(), r_in.time());
+        pdf = 1 / (4 * pi);
+        return true;
+    }
+
+    double scatteringPDF(const Ray& r_in, const HitRecord& rec, const Ray& scattered) const override {
+        return 1 / (4 * pi);
+    }
+
+private:
+    shared_ptr<Texture> tex;
 };
 
 class DiffuseLight : public Material {

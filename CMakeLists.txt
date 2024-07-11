@@ -20,4 +20,5 @@ add_executable(main.cpp
         src/rtw_stb_image.h
         src/external/stb_image.h
         src/Quad.hpp
+        src/OBN.hpp
 )

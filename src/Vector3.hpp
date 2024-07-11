@@ -133,6 +133,18 @@ inline Vector3 randomUnitVector() {
     return unit_vector(randomUnitSphere());
 }
 
+inline Vector3 random_cosine_direction() {
+    auto r1 = randomDouble();
+    auto r2 = randomDouble();
+
+    auto phi = 2*pi*r1;
+    auto x = cos(phi)*sqrt(r2);
+    auto y = sin(phi)*sqrt(r2);
+    auto z = sqrt(1-r2);
+
+    return Vector3(x, y, z);
+}
+
 inline Vector3 randomHemisphere(const Vector3& normal) {
     Vector3 on_unit_sphere = randomUnitVector();
     if (dot(on_unit_sphere, normal) > 0.0) // In the same hemisphere as the normal

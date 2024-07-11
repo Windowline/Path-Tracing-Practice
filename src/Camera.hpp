@@ -90,7 +90,8 @@ private:
             // new
             Ray scattered;
             Vector3 attenuation;
-            if (rec.mat->scatter(r, rec, attenuation, scattered))
+            double pdf;
+            if (rec.mat->scatter(r, rec, attenuation, scattered, pdf))
                 return attenuation * rayColor(scattered, depth - 1, world);
             return Vector3(0, 0, 0);
         }

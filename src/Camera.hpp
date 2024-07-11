@@ -2,7 +2,7 @@
 #include "Color.hpp"
 #include "Hittable.hpp"
 #include "Material.hpp"
-
+#include "PDF.hpp"
 #include <iostream>
 
 class Camera {
@@ -88,27 +88,15 @@ private:
         // new
         Ray scattered;
         Vector3 attenuation;
-        double tmp = 1.0;
-        bool isScattered = rec.mat->scatter(r, rec, attenuation, scattered, tmp);
+        double PDF;
         Vector3 colorFromEmission = rec.mat->emitted(r, rec, rec.u, rec.v, rec.p);
 
-        if (!isScattered)
-            return colorFromEmission; // color from emission
-
-        auto on_light = Vector3(randomDouble(213,343), 554, randomDouble(227,332));
-        auto to_light = on_light - rec.p;
-        auto distance_squared = to_light.length_squared();
-        to_light = unit_vector(to_light);
-
-        if (dot(to_light, rec.normal) < 0)
+        if (!rec.mat->scatter(r, rec, attenuation, scattered, PDF))
             return colorFromEmission;
 
-        double light_area = (343-213)*(332-227);
-        auto light_cosine = fabs(to_light.y());
-        if (light_cosine < 0.000001)
-            return colorFromEmission;
-
-        double PDF = distance_squared / (light_cosine * light_area);
+        CosinePDF surfacePDF(rec.normal);
+        scattered = Ray(rec.p, surfacePDF.generate(), r.time());
+        PDF = surfacePDF.value(scattered.direction());
 
         double scatteringPDF = rec.mat->scatteringPDF(r, rec, scattered);
 

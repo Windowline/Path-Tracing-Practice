@@ -78,23 +78,19 @@ private:
 
     Vector3 rayColor(const Ray& r, int depth, const Hittable& world) const {
         HitRecord rec;
-
         // If we've exceeded the ray bounce limit, no more light is gathered.
         if (depth <= 0)
             return Vector3(0, 0, 0);
 
-        if (!world.hit(r, Interval(0.001, infinity), rec)) {
-            Vector3 unit_direction = unit_vector(r.direction());
-            auto a = 0.5*(unit_direction.y() + 1.0);
-            return (1.0 - a) * Vector3(1.0, 1.0, 1.0) + a * Vector3(0.5, 0.7, 1.0);
-        }
+        if (!world.hit(r, Interval(0.001, infinity), rec))
+            return background;
 
         // new
         Ray scattered;
         Vector3 attenuation;
         double PDF = 1.0;
         bool isScattered = rec.mat->scatter(r, rec, attenuation, scattered, PDF);
-        Vector3 colorFromEmission(0, 0, 0);
+        Vector3 colorFromEmission = rec.mat->emitted(rec.u, rec.v, rec.p);
 
         if (!isScattered)
             return colorFromEmission; // color from emission

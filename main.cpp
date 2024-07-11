@@ -34,44 +34,75 @@ inline shared_ptr<HittableList> box(const Vector3& a, const Vector3& b, shared_p
     return sides;
 }
 
-//void cornellBox() {
-//    HittableList world;
-//
-//    auto red   = make_shared<Lambertian>(Vector3(.65, .05, .05));
-//    auto white = make_shared<Lambertian>(Vector3(.73, .73, .73));
-//    auto green = make_shared<Lambertian>(Vector3(.12, .45, .15));
-//    auto light = make_shared<DiffuseLight>(Vector3(15, 15, 15));
-//
-//    world.add(make_shared<Quad>(Vector3(555, 0, 0), Vector3(0, 555, 0), Vector3(0, 0, 555), green));
-//    world.add(make_shared<Quad>(Vector3(0, 0, 0), Vector3(0, 555, 0), Vector3(0, 0, 555), red));
-//    world.add(make_shared<Quad>(Vector3(343, 554, 332), Vector3(-130, 0, 0), Vector3(0, 0, -105), light));
-//    world.add(make_shared<Quad>(Vector3(0, 0, 0), Vector3(555, 0, 0), Vector3(0, 0, 555), white));
-//    world.add(make_shared<Quad>(Vector3(555, 555, 555), Vector3(-555, 0, 0), Vector3(0, 0, -555), white));
-//    world.add(make_shared<Quad>(Vector3(0, 0, 555), Vector3(555, 0, 0), Vector3(0, 555, 0), white));
-//
-////    world.add(box(vec3(130, 0, 65), vec3(295, 165, 230), white));
-////    world.add(box(vec3(265, 0, 295), vec3(430, 330, 460), white));
-//    shared_ptr<Hittable> box1 = box(Vector3(0, 0, 0), Vector3(165, 330, 165), white);
-//    box1 = make_shared<RotateY>(box1, 15);
-//    box1 = make_shared<Translate>(box1, Vector3(265, 0, 295));
-//    world.add(box1);
-//
-//    shared_ptr<Hittable> box2 = box(Vector3(0, 0, 0), Vector3(165, 165, 165), white);
-//    box2 = make_shared<RotateY>(box2, -18);
-//    box2 = make_shared<Translate>(box2, Vector3(130, 0, 65));
-//    world.add(box2);
-//
-//    Camera cam;
-//    cam.aspect_ratio      = 1.0;
-//    cam.image_width       = 400;
-//    cam.samples_per_pixel = 50;
-//    cam.max_depth         = 5;
-//    cam.vfov     = 40;
-//    cam.lookfrom = Vector3(278, 278, -800);
-//    cam.lookat   = Vector3(278, 278, 0);
-//    cam.vup      = Vector3(0, 1, 0);
-//    cam.render(world);
-//}
+void simple_light() {
+    HittableList world;
+
+    auto pertext = make_shared<SolidColor>(100, 100, 100);
+    world.add(make_shared<Sphere>(Vector3(0,-1000,0), 1000, make_shared<Lambertian>(pertext)));
+    world.add(make_shared<Sphere>(Vector3(0,2,0), 2, make_shared<Lambertian>(pertext)));
+
+    auto difflight = make_shared<DiffuseLight>(Vector3(255,255,255));
+    world.add(make_shared<Quad>(Vector3(3,1,-2), Vector3(2,0,0), Vector3(0,2,0), difflight));
+
+    Camera cam;
+
+    cam.aspect_ratio      = 16.0 / 9.0;
+    cam.image_width       = 400 / 2;
+    cam.samples_per_pixel = 100 / 2;
+    cam.max_depth         = 50 / 2;
+    cam.background        = Vector3(0,0,0);
+
+    cam.vfov     = 20;
+    cam.lookfrom = Vector3(26,3,6);
+    cam.lookat   = Vector3(0,2,0);
+    cam.vup      = Vector3(0,1,0);
+
+//    cam.defocus_angle = 0;
+
+    cam.render(world);
+}
+
+void cornellBox() {
+    HittableList world;
+
+    auto red   = make_shared<Lambertian>(Vector3(.65, .05, .05));
+    auto white = make_shared<Lambertian>(Vector3(.73, .73, .73));
+    auto green = make_shared<Lambertian>(Vector3(.12, .45, .15));
+    auto light = make_shared<DiffuseLight>(Vector3(15, 15, 15));
+
+    world.add(make_shared<Quad>(Vector3(555, 0, 0), Vector3(0, 555, 0), Vector3(0, 0, 555), green));
+    world.add(make_shared<Quad>(Vector3(0, 0, 0), Vector3(0, 555, 0), Vector3(0, 0, 555), red));
+    world.add(make_shared<Quad>(Vector3(343, 554, 332), Vector3(-130, 0, 0), Vector3(0, 0, -105), light));
+    world.add(make_shared<Quad>(Vector3(0, 0, 0), Vector3(555, 0, 0), Vector3(0, 0, 555), white));
+    world.add(make_shared<Quad>(Vector3(555, 555, 555), Vector3(-555, 0, 0), Vector3(0, 0, -555), white));
+    world.add(make_shared<Quad>(Vector3(0, 0, 555), Vector3(555, 0, 0), Vector3(0, 555, 0), white));
+
+//    world.add(box(vec3(130, 0, 65), vec3(295, 165, 230), white));
+//    world.add(box(vec3(265, 0, 295), vec3(430, 330, 460), white));
+    shared_ptr<Hittable> box1 = box(Vector3(0, 0, 0), Vector3(165, 330, 165), white);
+    box1 = make_shared<RotateY>(box1, 15);
+    box1 = make_shared<Translate>(box1, Vector3(265, 0, 295));
+    world.add(box1);
+
+    shared_ptr<Hittable> box2 = box(Vector3(0, 0, 0), Vector3(165, 165, 165), white);
+    box2 = make_shared<RotateY>(box2, -18);
+    box2 = make_shared<Translate>(box2, Vector3(130, 0, 65));
+    world.add(box2);
+
+    Camera cam;
+    cam.aspect_ratio      = 1.0;
+    cam.image_width       = 400 / 2;
+    cam.samples_per_pixel = 50 / 2;
+    cam.max_depth         = 50 / 2;
+    cam.vfov     = 40;
+    cam.lookfrom = Vector3(278, 278, -800);
+    cam.lookat   = Vector3(278, 278, 0);
+    cam.vup      = Vector3(0, 1, 0);
+
+    cam.background = Vector3(0, 0, 0);
+
+    cam.render(world);
+}
 
 void bouncingSpheres() {
     HittableList world;
@@ -138,5 +169,9 @@ void bouncingSpheres() {
 }
 
 int main() {
-    bouncingSpheres();
+//    bouncingSpheres();
+
+    cornellBox();
+
+//    simple_light();
 }

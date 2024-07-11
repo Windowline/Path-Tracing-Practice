@@ -11,7 +11,7 @@ public:
     int    image_width  = 100;  // Rendered image width in pixel count
     int    samples_per_pixel = 10;   // Count of random samples for each pixel
     int    max_depth         = 10;   // Maximum number of ray bounces into scene
-    Vector3  background;               // Scene background color
+    Vector3  background = Vector3(0, 0, 0);               // Scene background color
 
     double vfov   = 90;              // Vertical view angle (field of view)
     Vector3 lookfrom = Vector3(0, 0, -1);  // Point camera is looking from
@@ -83,23 +83,33 @@ private:
         if (depth <= 0)
             return Vector3(0, 0, 0);
 
-        if (world.hit(r, Interval(0.001, infinity), rec)) {
-            if (!world.hit(r, Interval(0.001, infinity), rec))
-                return background;
-
-            // new
-            Ray scattered;
-            Vector3 attenuation;
-            double pdf;
-            if (rec.mat->scatter(r, rec, attenuation, scattered, pdf))
-                return attenuation * rayColor(scattered, depth - 1, world);
-            return Vector3(0, 0, 0);
+        if (!world.hit(r, Interval(0.001, infinity), rec)) {
+            Vector3 unit_direction = unit_vector(r.direction());
+            auto a = 0.5*(unit_direction.y() + 1.0);
+            return (1.0 - a) * Vector3(1.0, 1.0, 1.0) + a * Vector3(0.5, 0.7, 1.0);
         }
 
-        Vector3 unit_direction = unit_vector(r.direction());
-        auto a = 0.5*(unit_direction.y() + 1.0);
-        return (1.0 - a) * Vector3(1.0, 1.0, 1.0) + a * Vector3(0.5, 0.7, 1.0);
+        // new
+        Ray scattered;
+        Vector3 attenuation;
+        double PDF = 1.0;
+        bool isScattered = rec.mat->scatter(r, rec, attenuation, scattered, PDF);
+        Vector3 colorFromEmission(0, 0, 0);
+
+        if (!isScattered)
+            return colorFromEmission; // color from emission
+
+        double scatteringPDF = rec.mat->scatteringPDF(r, rec, scattered);
+        assert(PDF >= 0.0 && PDF <= 1.0);
+        assert(scatteringPDF >= 0.0 && scatteringPDF <= 1.0);
+
+        Vector3 colorFromScatter = (attenuation * 1.0 * rayColor(scattered, depth - 1, world)) / 1.0;
+//        Vector3 colorFromScatter = (attenuation * scatteringPDF * rayColor(scattered, depth - 1, world)) / PDF;
+
+        return colorFromEmission + colorFromScatter;
     }
+
+
 
     Ray getRay(int i, int j) const {
         // Get a randomly sampled camera ray for the pixel at location i,j.

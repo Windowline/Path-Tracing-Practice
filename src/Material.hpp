@@ -28,19 +28,7 @@ class Lambertian : public Material {
 public:
     Lambertian(const Vector3& albedo) : tex(std::make_shared<SolidColor>(albedo)) {}
     Lambertian(std::shared_ptr<Texture> tex) : tex(tex) {}
-
-//    bool scatter(const Ray& r_in, const HitRecord& rec, Vector3& attenuation, Ray& scattered, double& pdf) const override {
-//        OBN uvw;
-//        uvw.build_from_w(rec.normal);
-//        auto scatterDirection = uvw.local(random_cosine_direction());
-//
-//        scattered = Ray(rec.p, scatterDirection);
-//        attenuation = tex->value(rec.u, rec.v, rec.p);
-//        pdf = dot(uvw.w(), scattered.direction()) / pi; // (cos_theta / pi)
-//
-//        return true;
-//    }
-
+    
     bool scatter(const Ray& r_in, const HitRecord& rec, Vector3& attenuation, Ray& scattered, double& pdf) const override {
 //        auto scatter_direction = rec.normal + randomUnitVector();
 //

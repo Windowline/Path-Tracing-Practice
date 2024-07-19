@@ -2,7 +2,7 @@
 #define HITTABLE_H
 #include "Interval.hpp"
 #include "Ray.hpp"
-#include "rtweekend.h"
+#include "utils.h"
 #include "AABB.hpp"
 
 #include <memory>

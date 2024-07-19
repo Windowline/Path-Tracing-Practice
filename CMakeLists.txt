@@ -12,14 +12,14 @@ add_executable(main.cpp
         src/Hittable.hpp
         src/Sphere.hpp
         src/HittableList.hpp
-        src/rtweekend.h
+        src/utils.h
         src/Interval.hpp
         src/Camera.hpp
         src/Material.hpp
         src/AABB.hpp
         src/BVH.hpp
         src/Texture.hpp
-        src/rtw_stb_image.h
+        src/STBImageLoader.hpp
         src/external/stb_image.h
         src/Quad.hpp
         src/OBN.hpp

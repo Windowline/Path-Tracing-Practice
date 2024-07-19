@@ -1,5 +1,5 @@
 #include <iostream>
-#include "src/rtweekend.h"
+#include "src/utils.h"
 #include "src/Color.hpp"
 #include "src/Camera.hpp"
 #include "src/Hittable.hpp"

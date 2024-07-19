@@ -1,4 +1,4 @@
-#include "rtweekend.h"
+#include "utils.h"
 #include "Color.hpp"
 #include "Hittable.hpp"
 #include "Material.hpp"

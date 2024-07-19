@@ -2,7 +2,7 @@
 #define MATERIAL_H
 
 #include <memory>
-#include "rtweekend.h"
+#include "utils.h"
 #include "Texture.hpp"
 #include "OBN.hpp"
 

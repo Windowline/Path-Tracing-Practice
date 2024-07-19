@@ -1,7 +1,7 @@
 #ifndef ONB_H
 #define ONB_H
 
-#include "rtweekend.h"
+#include "utils.h"
 #include "Vector3.hpp"
 
 class OBN {

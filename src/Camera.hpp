@@ -12,6 +12,7 @@ public:
     int samplePerPixel = 10;
     int maxDepth = 10;
     Vector3 background = Vector3(0, 0, 0);
+    bool onSkyBackground = false;
 
     double fovy = 90;
     Vector3 camPos = Vector3(0, 0, -1);
@@ -73,8 +74,15 @@ private:
         if (depth <= 0)
             return Vector3(0, 0, 0);
 
-        if (!world.hit(r, Interval(0.001, infinity), rec))
-            return background;
+        if (!world.hit(r, Interval(0.001, infinity), rec)) {
+            if (onSkyBackground) {
+                Vector3 rayDir = unitVector(r.direction());
+                auto a = 0.5 * (rayDir.y() + 1.0);
+                return (1.0 - a) * Vector3(1.0, 1.0, 1.0) + a * Vector3(0.5, 0.7, 1.0);
+            } else {
+                return background;
+            }
+        }
 
         Ray scattered;
         Vector3 attenuation;

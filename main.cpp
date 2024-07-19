@@ -73,7 +73,7 @@ void cornellBox() {
 
 void bouncingSpheres() {
     HittableList world;
-    auto checker = make_shared<CheckerTexture>(0.4, Vector3(0.1, 0.1, 0.1), Vector3(0.9, 0.9, 0.9));
+    auto checker = make_shared<CheckerTexture>(0.4, Vector3(0.0, 0.0, 0.0), Vector3(1.0, 1.0, 1.0));
     world.add(make_shared<Sphere>(Vector3(0, -1000, 0), 1000, make_shared<Lambertian>(checker)));
 
     for (int a = -11; a < 11; a++) {
@@ -118,6 +118,7 @@ void bouncingSpheres() {
 
     Camera camera;
 
+    camera.onSkyBackground = true;
     camera.aspectRatio = 16.0 / 9.0;
 
 //    camera.image_width       = 1200;
@@ -136,6 +137,6 @@ void bouncingSpheres() {
 }
 
 int main() {
-//    bouncingSpheres();
-    cornellBox();
+    bouncingSpheres();
+//    cornellBox();
 }

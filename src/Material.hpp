@@ -41,7 +41,7 @@ public:
     }
 
     double scatteringPDF(const Ray& ray, const HitRecord& rec, const Ray& scattered) const override {
-        auto cos_theta = dot(rec.normal, unit_vector(scattered.direction()));
+        auto cos_theta = dot(rec.normal, unitVector(scattered.direction()));
         return cos_theta < 0 ? 0 : cos_theta/pi;
     }
 
@@ -55,7 +55,7 @@ public:
     Metal(const Vector3& a, double f) : albedo(a), fuzz(f < 1 ? f : 1) {}
 
     bool scatter(const Ray& ray, const HitRecord& rec, Vector3& outAttenuation, Ray& outScattered, double& outPDF) const override {
-        Vector3 reflected = reflect(unit_vector(ray.direction()), rec.normal);
+        Vector3 reflected = reflect(unitVector(ray.direction()), rec.normal);
         outScattered = Ray(rec.p, reflected + fuzz * randomUnitVector());
         outAttenuation = albedo;
 
@@ -78,7 +78,7 @@ public:
         outAttenuation = Vector3(1.0, 1.0, 1.0);
         double refractionRatio = rec.front_face ? (1.0 / ir) : ir;
 
-        Vector3 rayDir = unit_vector(ray.direction());
+        Vector3 rayDir = unitVector(ray.direction());
         double cosTheta = fmin(dot(-rayDir, rec.normal), 1.0);
         double sinTheta = sqrt(1.0 - cosTheta * cosTheta);
 

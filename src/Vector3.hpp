@@ -64,19 +64,13 @@ public:
         return e[0]*e[0] + e[1]*e[1] + e[2]*e[2];
     }
 
-    bool near_zero() const {
-        // Return true if the vector is close to zero in all dimensions.
+    bool nearZero() const {
         auto s = 1e-8;
         return (fabs(e[0]) < s) && (fabs(e[1]) < s) && (fabs(e[2]) < s);
     }
-
-//    vec3 reflect(const vec3& v, const vec3& n) {
-//        return v - 2*dot(v,n)*n;
-//    }
 };
 
 
-// Vector Utility Functions
 inline std::ostream& operator<<(std::ostream &out, const Vector3 &v) {
     return out << v.e[0] << ' ' << v.e[1] << ' ' << v.e[2];
 }
@@ -117,7 +111,7 @@ inline Vector3 cross(const Vector3 &u, const Vector3 &v) {
                 u.e[0] * v.e[1] - u.e[1] * v.e[0]);
 }
 
-inline Vector3 unit_vector(Vector3 v) {
+inline Vector3 unitVector(Vector3 v) {
     return v / v.length();
 }
 
@@ -130,7 +124,7 @@ inline Vector3 randomUnitSphere() {
 }
 
 inline Vector3 randomUnitVector() {
-    return unit_vector(randomUnitSphere());
+    return unitVector(randomUnitSphere());
 }
 
 inline Vector3 random_cosine_direction() {

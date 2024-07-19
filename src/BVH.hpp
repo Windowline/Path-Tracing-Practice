@@ -5,7 +5,7 @@
 
 #include "AABB.hpp"
 #include "Hittable.hpp"
-#include "Hittable_list.hpp"
+#include "HittableList.hpp"
 
 class BVHNode : public Hittable {
 public:

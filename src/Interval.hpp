@@ -5,16 +5,14 @@ class Interval {
 public:
     double min, max;
 
-    Interval() : min(+infinity), max(-infinity) {} // Default interval is empty
+    Interval() : min(+infinity), max(-infinity) {}
 
     Interval(double _min, double _max) : min(_min), max(_max) {}
 
     Interval(const Interval& a, const Interval& b) {
-        // Create the interval tightly enclosing the two input intervals.
         min = a.min <= b.min ? a.min : b.min;
         max = a.max >= b.max ? a.max : b.max;
     }
-
 
     bool contains(double x) const {
         return min <= x && x <= max;
@@ -39,7 +37,6 @@ public:
         return max - min + 1;
     }
 
-//    static const interval empty, universe;
 };
 
 //const static interval empty   (+std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity());

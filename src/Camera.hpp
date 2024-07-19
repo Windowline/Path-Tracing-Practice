@@ -53,8 +53,8 @@ private:
         auto viewportHeight = 2 * h * focalLen;
         auto viewportWidth = viewportHeight * (static_cast<double>(imgWidth) / imgHeight);
 
-        w = unit_vector(camPos - lookAt);
-        u = unit_vector(cross(up, w));
+        w = unitVector(camPos - lookAt);
+        u = unitVector(cross(up, w));
         v = cross(w, u);
 
         Vector3 viewportU = viewportWidth * u;

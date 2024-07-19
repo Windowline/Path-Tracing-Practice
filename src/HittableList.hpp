@@ -20,20 +20,20 @@ public:
         bbox = AABB(bbox, object->boundingBox());
     }
 
-    bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const override {
-        HitRecord temp_rec;
-        bool hit_anything = false;
-        auto closest_so_far = ray_t.max; //이해.
+    bool hit(const Ray& r, Interval ray_t, HitRecord& outRec) const override {
+        HitRecord tmpRec;
+        bool hitAnything = false;
+        auto closest = ray_t.max;
 
         for (const auto& object : objects) {
-            if (object->hit(r, Interval(ray_t.min, closest_so_far), temp_rec)) {
-                hit_anything = true;
-                closest_so_far = temp_rec.t;
-                rec = temp_rec;
+            if (object->hit(r, Interval(ray_t.min, closest), tmpRec)) {
+                hitAnything = true;
+                closest = tmpRec.t;
+                outRec = tmpRec;
             }
         }
 
-        return hit_anything;
+        return hitAnything;
     }
 
     AABB boundingBox() const override { return bbox; }

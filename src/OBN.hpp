@@ -24,9 +24,9 @@ public:
     }
 
     void build_from_w(const Vector3& w) {
-        Vector3 unit_w = unit_vector(w);
+        Vector3 unit_w = unitVector(w);
         Vector3 a = (fabs(unit_w.x()) > 0.9) ? Vector3(0,1,0) : Vector3(1,0,0);
-        Vector3 v = unit_vector(cross(unit_w, a));
+        Vector3 v = unitVector(cross(unit_w, a));
         Vector3 u = cross(unit_w, v);
         axis[0] = u;
         axis[1] = v;

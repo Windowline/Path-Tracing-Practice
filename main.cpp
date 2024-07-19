@@ -3,7 +3,7 @@
 #include "src/Color.hpp"
 #include "src/Camera.hpp"
 #include "src/Hittable.hpp"
-#include "src/Hittable_list.hpp"
+#include "src/HittableList.hpp"
 #include "src/Sphere.hpp"
 #include "src/Material.hpp"
 #include "src/BVH.hpp"

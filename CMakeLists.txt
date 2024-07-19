@@ -11,7 +11,7 @@ add_executable(main.cpp
         src/Ray.hpp
         src/Hittable.hpp
         src/Sphere.hpp
-        src/Hittable_list.hpp
+        src/HittableList.hpp
         src/rtweekend.h
         src/Interval.hpp
         src/Camera.hpp

@@ -12,7 +12,7 @@ add_executable(main.cpp
         src/Hittable.hpp
         src/Sphere.hpp
         src/HittableList.hpp
-        src/utils.h
+        src/Utils.hpp
         src/Interval.hpp
         src/Camera.hpp
         src/Material.hpp

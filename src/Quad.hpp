@@ -1,7 +1,7 @@
 #ifndef QUAD_H
 #define QUAD_H
 
-#include "utils.h"
+#include "Utils.hpp"
 
 #include "Hittable.hpp"
 

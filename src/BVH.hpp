@@ -1,7 +1,7 @@
 #ifndef BVH_H
 #define BVH_H
 
-#include "utils.h"
+#include "Utils.hpp"
 
 #include "AABB.hpp"
 #include "Hittable.hpp"

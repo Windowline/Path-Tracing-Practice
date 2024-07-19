@@ -1,7 +1,7 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include "utils.h"
+#include "Utils.hpp"
 #include "STBImageLoader.hpp"
 
 class Texture {

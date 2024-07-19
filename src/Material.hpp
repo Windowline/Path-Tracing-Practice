@@ -2,7 +2,7 @@
 #define MATERIAL_H
 
 #include <memory>
-#include "utils.h"
+#include "Utils.hpp"
 #include "Texture.hpp"
 #include "OBN.hpp"
 

@@ -1,4 +1,4 @@
-#include "utils.h"
+#include "Utils.hpp"
 #include "Color.hpp"
 #include "Hittable.hpp"
 #include "Material.hpp"

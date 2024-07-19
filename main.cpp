@@ -1,5 +1,5 @@
 #include <iostream>
-#include "src/utils.h"
+#include "src/Utils.hpp"
 #include "src/Color.hpp"
 #include "src/Camera.hpp"
 #include "src/Hittable.hpp"

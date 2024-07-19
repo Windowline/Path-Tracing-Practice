@@ -1,7 +1,7 @@
 #ifndef ONB_H
 #define ONB_H
 
-#include "utils.h"
+#include "Utils.hpp"
 #include "Vector3.hpp"
 
 class OBN {

@@ -20,9 +20,6 @@ public:
     bool front_face;
 
     void setFaceNormal(const Ray& r, const Vector3& outwardNormal) {
-        // Sets the hit record normal vector.
-        // NOTE: the parameter `outward_normal` is assumed to have unit length.
-
         front_face = dot(r.direction(), outwardNormal) < 0;
         normal = front_face ? outwardNormal : -outwardNormal;
     }
@@ -30,7 +27,7 @@ public:
 
 class Hittable {
 public:
-    virtual bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const = 0;
+    virtual bool hit(const Ray& r, Interval ray_t, HitRecord& outRec) const = 0;
 
     virtual AABB boundingBox() const = 0;
 };
@@ -45,16 +42,12 @@ public:
     }
 
 
-    bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const override {
-        // Move the ray backwards by the offset
+    bool hit(const Ray& r, Interval ray_t, HitRecord& outRec) const override {
         Ray offset_r(r.origin() - offset, r.direction(), r.time());
-
-        // Determine whether an intersection exists along the offset ray (and if so, where)
-        if (!object->hit(offset_r, ray_t, rec))
+        if (!object->hit(offset_r, ray_t, outRec))
             return false;
 
-        // Move the intersection point forwards by the offset
-        rec.p += offset;
+        outRec.p += offset;
 
         return true;
     }
@@ -72,7 +65,7 @@ class RotateY : public Hittable {
 public:
     RotateY(shared_ptr<Hittable> object, double angle) : object(object) {
         auto radians = degrees2radians(angle);
-        sin_theta = sin(radians);
+        sinTheta = sin(radians);
         cos_theta = cos(radians);
         bbox = object->boundingBox();
 
@@ -86,8 +79,8 @@ public:
                     auto y = j*bbox.y.max + (1-j)*bbox.y.min;
                     auto z = k*bbox.z.max + (1-k)*bbox.z.min;
 
-                    auto newx =  cos_theta*x + sin_theta*z;
-                    auto newz = -sin_theta*x + cos_theta*z;
+                    auto newx =  cos_theta*x + sinTheta * z;
+                    auto newz = -sinTheta * x + cos_theta * z;
 
                     Vector3 tester(newx, y, newz);
 
@@ -107,11 +100,11 @@ public:
         auto origin = r.origin();
         auto direction = r.direction();
 
-        origin[0] = cos_theta*r.origin()[0] - sin_theta*r.origin()[2];
-        origin[2] = sin_theta*r.origin()[0] + cos_theta*r.origin()[2];
+        origin[0] = cos_theta*r.origin()[0] - sinTheta * r.origin()[2];
+        origin[2] = sinTheta * r.origin()[0] + cos_theta * r.origin()[2];
 
-        direction[0] = cos_theta*r.direction()[0] - sin_theta*r.direction()[2];
-        direction[2] = sin_theta*r.direction()[0] + cos_theta*r.direction()[2];
+        direction[0] = cos_theta*r.direction()[0] - sinTheta * r.direction()[2];
+        direction[2] = sinTheta * r.direction()[0] + cos_theta * r.direction()[2];
 
         Ray rotated_r(origin, direction, r.time());
 
@@ -121,13 +114,13 @@ public:
 
         // Change the intersection point from object space to world space
         auto p = rec.p;
-        p[0] =  cos_theta*rec.p[0] + sin_theta*rec.p[2];
-        p[2] = -sin_theta*rec.p[0] + cos_theta*rec.p[2];
+        p[0] =  cos_theta*rec.p[0] + sinTheta * rec.p[2];
+        p[2] = -sinTheta * rec.p[0] + cos_theta * rec.p[2];
 
         // Change the normal from object space to world space
         auto normal = rec.normal;
-        normal[0] =  cos_theta*rec.normal[0] + sin_theta*rec.normal[2];
-        normal[2] = -sin_theta*rec.normal[0] + cos_theta*rec.normal[2];
+        normal[0] =  cos_theta*rec.normal[0] + sinTheta * rec.normal[2];
+        normal[2] = -sinTheta * rec.normal[0] + cos_theta * rec.normal[2];
 
         rec.p = p;
         rec.normal = normal;
@@ -139,7 +132,7 @@ public:
 
 private:
     shared_ptr<Hittable> object;
-    double sin_theta;
+    double sinTheta;
     double cos_theta;
     AABB bbox;
 };

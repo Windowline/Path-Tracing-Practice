@@ -12,11 +12,7 @@
 
 inline shared_ptr<HittableList> box(const Vector3& a, const Vector3& b, shared_ptr<Material> mat)
 {
-    // Returns the 3D box (six sides) that contains the two opposite vertices a & b.
-
     auto sides = make_shared<HittableList>();
-
-    // Construct the two opposite vertices with the minimum and maximum coordinates.
     auto min = Vector3(fmin(a.x(), b.x()), fmin(a.y(), b.y()), fmin(a.z(), b.z()));
     auto max = Vector3(fmax(a.x(), b.x()), fmax(a.y(), b.y()), fmax(a.z(), b.z()));
 
@@ -32,34 +28,6 @@ inline shared_ptr<HittableList> box(const Vector3& a, const Vector3& b, shared_p
     sides->add(make_shared<Quad>(Vector3(min.x(), min.y(), min.z()), dx, dz, mat)); // bottom
 
     return sides;
-}
-
-void simple_light() {
-    HittableList world;
-
-    auto pertext = make_shared<SolidColor>(100, 100, 100);
-    world.add(make_shared<Sphere>(Vector3(0,-1000,0), 1000, make_shared<Lambertian>(pertext)));
-    world.add(make_shared<Sphere>(Vector3(0,2,0), 2, make_shared<Lambertian>(pertext)));
-
-    auto difflight = make_shared<DiffuseLight>(Vector3(255,255,255));
-    world.add(make_shared<Quad>(Vector3(3,1,-2), Vector3(2,0,0), Vector3(0,2,0), difflight));
-
-    Camera cam;
-
-    cam.aspect_ratio      = 16.0 / 9.0;
-    cam.image_width       = 400 / 2;
-    cam.samples_per_pixel = 100 / 2;
-    cam.max_depth         = 50 / 2;
-    cam.background        = Vector3(0,0,0);
-
-    cam.vfov     = 20;
-    cam.lookfrom = Vector3(26,3,6);
-    cam.lookat   = Vector3(0,2,0);
-    cam.vup      = Vector3(0,1,0);
-
-//    cam.defocus_angle = 0;
-
-    cam.render(world);
 }
 
 void cornellBox() {
@@ -90,15 +58,14 @@ void cornellBox() {
     world.add(box2);
 
     Camera cam;
-    cam.aspect_ratio      = 1.0;
-    cam.image_width       = 400 / 2;
-    cam.samples_per_pixel = 50 / 2;
-    cam.max_depth         = 50 / 2;
-    cam.vfov     = 40;
-    cam.lookfrom = Vector3(278, 278, -800);
-    cam.lookat   = Vector3(278, 278, 0);
-    cam.vup      = Vector3(0, 1, 0);
-
+    cam.aspectRatio = 1.0;
+    cam.imgWidth = 400;
+    cam.samplePerPixel = 50;
+    cam.maxDepth = 50;
+    cam.fovy = 30;
+    cam.camPos = Vector3(278, 278, -800);
+    cam.lookAt = Vector3(278, 278, 0);
+    cam.up = Vector3(0, 1, 0);
     cam.background = Vector3(0, 0, 0);
 
     cam.render(world);
@@ -151,27 +118,24 @@ void bouncingSpheres() {
 
     Camera camera;
 
-    camera.aspect_ratio      = 16.0 / 9.0;
+    camera.aspectRatio = 16.0 / 9.0;
 
 //    camera.image_width       = 1200;
 //    camera.samples_per_pixel = 500;
 //    camera.max_depth         = 50;
-    camera.image_width       = 400;
-    camera.samples_per_pixel = 16;
-    camera.max_depth         = 4;
+    camera.imgWidth = 400;
+    camera.samplePerPixel = 16;
+    camera.maxDepth = 4;
 
-    camera.vfov     = 25;
-    camera.lookfrom = Vector3(-15, 4, 5);
-    camera.lookat   = Vector3(0, 0, 0);
-    camera.vup      = Vector3(0, 1, 0);
+    camera.fovy = 25;
+    camera.camPos = Vector3(-15, 4, 5);
+    camera.lookAt = Vector3(0, 0, 0);
+    camera.up = Vector3(0, 1, 0);
 
     camera.render(world);
 }
 
 int main() {
 //    bouncingSpheres();
-
     cornellBox();
-
-//    simple_light();
 }

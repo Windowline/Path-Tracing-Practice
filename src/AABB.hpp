@@ -8,7 +8,7 @@ class AABB {
 public:
     Interval x, y, z;
 
-    AABB() {} // The default AABB is empty, since intervals are empty by default.
+    AABB() {}
 
     AABB(const Interval& x, const Interval& y, const Interval& z)
             : x(x), y(y), z(z) {
@@ -16,13 +16,9 @@ public:
     }
 
     AABB(const Vector3& a, const Vector3& b) {
-        // Treat the two points a and b as extrema for the bounding box, so we don't require a
-        // particular minimum/maximum coordinate order.
-
         x = (a[0] <= b[0]) ? Interval(a[0], b[0]) : Interval(b[0], a[0]);
         y = (a[1] <= b[1]) ? Interval(a[1], b[1]) : Interval(b[1], a[1]);
         z = (a[2] <= b[2]) ? Interval(a[2], b[2]) : Interval(b[2], a[2]);
-
         padMinimums();
     }
 
@@ -64,8 +60,6 @@ public:
     }
 
     int longestAxis() const {
-        // Returns the index of the longest axis of the bounding box.
-
         if (x.size() > y.size())
             return x.size() > z.size() ? 0 : 2;
         else
@@ -76,18 +70,12 @@ public:
 
 private:
     void padMinimums() {
-        // Adjust the AABB so that no side is narrower than some delta, padding if necessary.
-
         double delta = 0.0001;
         if (x.size() < delta) x = x.expand(delta);
         if (y.size() < delta) y = y.expand(delta);
         if (z.size() < delta) z = z.expand(delta);
     }
 };
-
-//const aabb aabb::empty    = aabb(interval::empty,    interval::empty,    interval::empty);
-//const aabb aabb::universe = aabb(interval::universe, interval::universe, interval::universe);
-
 
 const Interval intervalEmpty   (+std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity());
 const Interval intervalUniverse(-std::numeric_limits<double>::infinity(), +std::numeric_limits<double>::infinity());

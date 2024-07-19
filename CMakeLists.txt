@@ -3,6 +3,8 @@ project(Ray_Tracing_Advanced)
 
 set(CMAKE_CXX_STANDARD 17)
 
+add_definitions("-Wno-c++11-extensions")
+
 add_executable(main.cpp
         src/Vector3.hpp
         src/Color.hpp

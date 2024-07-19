@@ -33,7 +33,6 @@ public:
 
 private:
     void build(std::vector< std::shared_ptr<Hittable> >& objects, size_t start, size_t end) {
-        // Build the bounding box of the span of source objects.
         bbox = AABB::empty;
         for (size_t object_index=start; object_index < end; object_index++)
             bbox = AABB(bbox, objects[object_index]->boundingBox());

@@ -7,31 +7,29 @@
 
 class Camera {
 public:
-    double aspect_ratio = 1.0;  // Ratio of image width over height
-    int    image_width  = 100;  // Rendered image width in pixel count
-    int    samples_per_pixel = 10;   // Count of random samples for each pixel
-    int    max_depth         = 10;   // Maximum number of ray bounces into scene
-    Vector3  background = Vector3(0, 0, 0);               // Scene background color
+    double aspectRatio = 1.0;
+    int imgWidth = 100;
+    int samplePerPixel = 10;
+    int maxDepth = 10;
+    Vector3 background = Vector3(0, 0, 0);
 
-    double vfov   = 90;              // Vertical view angle (field of view)
-    Vector3 lookfrom = Vector3(0, 0, -1);  // Point camera is looking from
-    Vector3 lookat   = Vector3(0, 0, 0);   // Point camera is looking at
-    Vector3 vup    = Vector3(0, 1, 0);     // Camera-relative "up" direction
+    double fovy = 90;
+    Vector3 camPos = Vector3(0, 0, -1);
+    Vector3 lookAt = Vector3(0, 0, 0);
+    Vector3 up = Vector3(0, 1, 0);
 
     void render(const Hittable& world) {
         initialize();
-
-        std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
-
-        for (int j = 0; j < image_height; ++j) {
-            std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
-            for (int i = 0; i < image_width; ++i) {
+        std::cout << "P3\n" << imgWidth << ' ' << imgHeight << "\n255\n";
+        for (int j = 0; j < imgHeight; ++j) {
+            std::clog << "\rScanlines remaining: " << (imgHeight - j) << ' ' << std::flush;
+            for (int i = 0; i < imgWidth; ++i) {
                 Vector3 pixel_color(0, 0, 0);
-                for (int sample = 0; sample < samples_per_pixel; ++sample) {
+                for (int sample = 0; sample < samplePerPixel; ++sample) {
                     Ray r = getRay(i, j);
-                    pixel_color += rayColor(r, max_depth, world);
+                    pixel_color += rayColor(r, maxDepth, world);
                 }
-                writeColor(std::cout, pixel_color, samples_per_pixel);
+                writeColor(std::cout, pixel_color, samplePerPixel);
             }
         }
 
@@ -39,90 +37,72 @@ public:
     }
 
 private:
-    int    image_height;   // Rendered image height
-    Vector3   center;         // Camera center
-    Vector3   pixel00_loc;    // Location of pixel 0, 0
-    Vector3   pixel_delta_u;  // Offset to pixel to the right
-    Vector3   pixel_delta_v;  // Offset to pixel below
-    Vector3   u, v, w;        // Camera frame basis vectors
+    int imgHeight;
+    Vector3 pixel00Loc;
+    Vector3 pixelDeltaU;
+    Vector3 pixelDeltaV;
+    Vector3 u, v, w;
 
     void initialize() {
-        image_height = static_cast<int>(image_width / aspect_ratio);
-        image_height = (image_height < 1) ? 1 : image_height;
-        center = lookfrom;
+        imgHeight = static_cast<int>(imgWidth / aspectRatio);
+        imgHeight = (imgHeight < 1) ? 1 : imgHeight;
 
-        // Determine viewport dimensions.
-        auto focal_length = (lookfrom - lookat).length();
-        auto theta = degrees2radians(vfov);
+        auto focalLen = (camPos - lookAt).length();
+        auto theta = degrees2radians(fovy);
         auto h = tan(theta/2);
-        auto viewport_height = 2 * h * focal_length;
-        auto viewport_width = viewport_height * (static_cast<double>(image_width)/image_height);
+        auto viewportHeight = 2 * h * focalLen;
+        auto viewportWidth = viewportHeight * (static_cast<double>(imgWidth) / imgHeight);
 
-        // Calculate the u,v,w unit basis vectors for the camera coordinate frame.
-        w = unit_vector(lookfrom - lookat);
-        u = unit_vector(cross(vup, w));
+        w = unit_vector(camPos - lookAt);
+        u = unit_vector(cross(up, w));
         v = cross(w, u);
 
-        // Calculate the vectors across the horizontal and down the vertical viewport edges.
-        Vector3 viewport_u = viewport_width * u;    // Vector across viewport horizontal edge
-        Vector3 viewport_v = viewport_height * -v;  // Vector down viewport vertical edge
+        Vector3 viewportU = viewportWidth * u;
+        Vector3 viewportV = viewportHeight * -v;
 
-        // Calculate the horizontal and vertical delta vectors from pixel to pixel.
-        pixel_delta_u = viewport_u / image_width; // 200, 100 --> 2,  || 50, 100 --> 0.5
-        pixel_delta_v = viewport_v / image_height;
+        pixelDeltaU = viewportU / imgWidth;
+        pixelDeltaV = viewportV / imgHeight;
 
-        // Calculate the location of the upper left pixel.
-        auto viewport_upper_left = center - (focal_length * w) - viewport_u/2 - viewport_v/2;
-        pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
+        auto viewportUpperLeft = camPos - (focalLen * w) - viewportU / 2 - viewportV / 2;
+        pixel00Loc = viewportUpperLeft + 0.5 * (pixelDeltaU + pixelDeltaV);
     }
 
     Vector3 rayColor(const Ray& r, int depth, const Hittable& world) const {
         HitRecord rec;
-        // If we've exceeded the ray bounce limit, no more light is gathered.
+
         if (depth <= 0)
             return Vector3(0, 0, 0);
 
         if (!world.hit(r, Interval(0.001, infinity), rec))
             return background;
 
-        // new
         Ray scattered;
         Vector3 attenuation;
         double PDF = 1.0;
         bool isScattered = rec.mat->scatter(r, rec, attenuation, scattered, PDF);
-        Vector3 colorFromEmission = rec.mat->emitted(rec.u, rec.v, rec.p);
+        Vector3 emissionColor = rec.mat->emitted(rec.u, rec.v, rec.p);
 
         if (!isScattered)
-            return colorFromEmission; // color from emission
+            return emissionColor;
 
         double scatteringPDF = rec.mat->scatteringPDF(r, rec, scattered);
         assert(PDF >= 0.0 && PDF <= 1.0);
         assert(scatteringPDF >= 0.0 && scatteringPDF <= 1.0);
 
-        Vector3 colorFromScatter = (attenuation * 1.0 * rayColor(scattered, depth - 1, world)) / 1.0;
-//        Vector3 colorFromScatter = (attenuation * scatteringPDF * rayColor(scattered, depth - 1, world)) / PDF;
+        Vector3 scatterColor = (attenuation * 1.0 * rayColor(scattered, depth - 1, world)) / 1.0;
 
-        return colorFromEmission + colorFromScatter;
+        return emissionColor + scatterColor;
     }
 
-
-
     Ray getRay(int i, int j) const {
-        // Get a randomly sampled camera ray for the pixel at location i,j.
-
-        auto pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
-        auto pixel_sample = pixel_center + pixelSampleSquare();
-
-        auto ray_origin = center;
-        auto ray_direction = pixel_sample - ray_origin;
-
-        return Ray(ray_origin, ray_direction);
+        auto pixelCenter = pixel00Loc + (i * pixelDeltaU) + (j * pixelDeltaV);
+        auto pixelSample = pixelCenter + pixelSampleSquare();
+        return Ray(camPos, pixelSample - camPos);
     }
 
     Vector3 pixelSampleSquare() const {
-        // Returns a random point in the square surrounding a pixel at the origin.
         auto px = -0.5 + randomDouble();
         auto py = -0.5 + randomDouble();
-        return (px * pixel_delta_u) + (py * pixel_delta_v);
+        return (px * pixelDeltaU) + (py * pixelDeltaV);
     }
 };

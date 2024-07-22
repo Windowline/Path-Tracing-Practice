@@ -97,7 +97,7 @@ private:
         assert(PDF >= 0.0 && PDF <= 1.0);
         assert(scatteringPDF >= 0.0 && scatteringPDF <= 1.0);
 
-        Vector3 scatterColor = (attenuation * 1.0 * rayColor(scattered, depth - 1, world)) / 1.0;
+        Vector3 scatterColor = (attenuation * scatteringPDF * rayColor(scattered, depth - 1, world)) / PDF;
 
         return emissionColor + scatterColor;
     }

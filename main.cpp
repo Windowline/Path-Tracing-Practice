@@ -137,6 +137,6 @@ void bouncingSpheres() {
 }
 
 int main() {
-    bouncingSpheres();
-//    cornellBox();
+//    bouncingSpheres();
+    cornellBox();
 }

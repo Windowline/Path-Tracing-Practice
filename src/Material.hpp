@@ -4,7 +4,7 @@
 #include <memory>
 #include "Utils.hpp"
 #include "Texture.hpp"
-#include "OBN.hpp"
+#include "ONB.hpp"
 
 class HitRecord;
 
@@ -30,8 +30,8 @@ public:
     Lambertian(std::shared_ptr<Texture> tex) : tex(tex) {}
     
     bool scatter(const Ray& ray, const HitRecord& rec, Vector3& outAttenuation, Ray& outScattered, double& outPDF) const override {
-        OBN uvw;
-        uvw.build_from_w(rec.normal);
+        ONB uvw;
+        uvw.buildFromW(rec.normal);
         auto scatterDirection = uvw.local(random_cosine_direction());
 
         outScattered = Ray(rec.p, scatterDirection);

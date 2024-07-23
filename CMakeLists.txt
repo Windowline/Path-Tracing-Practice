@@ -22,5 +22,5 @@ add_executable(main.cpp
         src/STBImageLoader.hpp
         src/external/stb_image.h
         src/Quad.hpp
-        src/OBN.hpp
+        src/ONB.hpp
 )

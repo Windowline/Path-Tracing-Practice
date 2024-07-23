@@ -31,7 +31,7 @@ public:
         if (!this->hit(Ray(origin, direction), Interval(0.001, infinity), rec))
             return 0;
 
-        auto distanceSquared = rec.t * rec.t * direction.length_squared();
+        auto distanceSquared = rec.t * rec.t * direction.lengthSquared();
         auto cosine = fabs(dot(direction, rec.normal) / direction.length());
 
         return distanceSquared / (cosine * area);

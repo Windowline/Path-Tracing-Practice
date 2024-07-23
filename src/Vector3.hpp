@@ -57,10 +57,10 @@ public:
 
 
     double length() const {
-        return sqrt(length_squared());
+        return sqrt(lengthSquared());
     }
 
-    double length_squared() const {
+    double lengthSquared() const {
         return e[0]*e[0] + e[1]*e[1] + e[2]*e[2];
     }
 
@@ -118,7 +118,7 @@ inline Vector3 unitVector(Vector3 v) {
 inline Vector3 randomUnitSphere() {
     while (true) {
         auto p = Vector3::random(-1, 1);
-        if (p.length_squared() < 1)
+        if (p.lengthSquared() < 1)
             return p;
     }
 }
@@ -154,7 +154,7 @@ Vector3 reflect(const Vector3& v, const Vector3& n) {
 inline Vector3 refract(const Vector3& uv, const Vector3& n, double etai_over_etat) {
     auto cos_theta = fmin(dot(-uv, n), 1.0);
     Vector3 r_out_perp = etai_over_etat * (uv + cos_theta * n);
-    Vector3 r_out_parallel = -sqrt(fabs(1.0 - r_out_perp.length_squared())) * n;
+    Vector3 r_out_parallel = -sqrt(fabs(1.0 - r_out_perp.lengthSquared())) * n;
     return r_out_perp + r_out_parallel;
 }
 

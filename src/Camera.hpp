@@ -96,18 +96,17 @@ private:
         if (!isScattered)
             return emissionColor;
 
-        double scatteringPDF = rec.mat->scatteringPDF(ray, rec, scattered);
-
+        //Light Sampling
         HittablePDF lightPDF(*light.get(), rec.p);
         scattered = Ray(rec.p, lightPDF.generateRandomVector(), ray.time());
         PDF = lightPDF.pdfValue(scattered.direction());
+        double scatteringPDF = rec.mat->scatteringPDF(ray, rec, scattered);
 
+        //Cosine Sampling
 //        CosinePDF surfacePDF(rec.normal);
 //        scattered = Ray(rec.p, surfacePDF.generateRandomVector(), ray.time());
 //        PDF = surfacePDF.pdfValue(scattered.direction());
-
-//        assert(PDF >= 0.0 && PDF <= 1.0);
-//        assert(scatteringPDF >= 0.0 && scatteringPDF <= 1.0);
+//        double scatteringPDF = rec.mat->scatteringPDF(ray, rec, scattered);
 
         Vector3 sampleColor = rayColor(scattered, depth-1, world, light);
         Vector3 scatterColor = (attenuation * scatteringPDF * sampleColor) / PDF;

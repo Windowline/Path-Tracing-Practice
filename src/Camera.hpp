@@ -96,12 +96,19 @@ private:
         if (!isScattered)
             return emissionColor;
 
-        //Light Sampling
-        HittablePDF lightPDF(*light.get(), rec.p);
-        scattered = Ray(rec.p, lightPDF.generateRandomVector(), ray.time());
-        PDF = lightPDF.pdfValue(scattered.direction()); // PDF = p(w)
+        //1. Mix
+        auto p0 = make_shared<HittablePDF>(*light.get(), rec.p);
+        auto p1 = make_shared<CosinePDF>(rec.normal);
+        MixturePDF mixedPDF(p0, p1);
+        scattered = Ray(rec.p, mixedPDF.generateRandomVector(), ray.time());
+        PDF = mixedPDF.pdfValue(scattered.direction());
 
-        //Cosine Sampling
+        //2. Light Sampling
+//        HittablePDF lightPDF(*light.get(), rec.p);
+//        scattered = Ray(rec.p, lightPDF.generateRandomVector(), ray.time());
+//        PDF = lightPDF.pdfValue(scattered.direction()); // PDF = p(w)
+
+        //3. Cosine Sampling
 //        CosinePDF surfacePDF(rec.normal);
 //        scattered = Ray(rec.p, surfacePDF.generateRandomVector(), ray.time());
 //        PDF = surfacePDF.pdfValue(scattered.direction());

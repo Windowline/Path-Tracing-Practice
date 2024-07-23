@@ -44,7 +44,6 @@ private:
 };
 
 
-
 class HittablePDF : public PDF {
 public:
     HittablePDF(const Hittable& hittableObj, const Vector3& origin)
@@ -62,6 +61,30 @@ public:
 private:
     const Hittable& hittableObj;
     Vector3 origin;
+};
+
+
+
+class MixturePDF : public PDF {
+public:
+    MixturePDF(shared_ptr<PDF> p0, shared_ptr<PDF> p1) {
+        p[0] = p0;
+        p[1] = p1;
+    }
+
+    double pdfValue(const Vector3& direction) const override {
+        return 0.5 * p[0]->pdfValue(direction) + 0.5 *p[1]->pdfValue(direction);
+    }
+
+    Vector3 generateRandomVector() const override {
+        if (randomDouble() < 0.5)
+            return p[0]->generateRandomVector();
+        else
+            return p[1]->generateRandomVector();
+    }
+
+private:
+    shared_ptr<PDF> p[2];
 };
 
 #endif //RAY_TRACING_ADVANCED_PDF_H

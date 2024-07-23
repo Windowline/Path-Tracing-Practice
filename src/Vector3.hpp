@@ -127,11 +127,11 @@ inline Vector3 randomUnitVector() {
     return unitVector(randomUnitSphere());
 }
 
-inline Vector3 random_cosine_direction() {
+inline Vector3 randomCosineDirection() {
     auto r1 = randomDouble();
     auto r2 = randomDouble();
 
-    auto phi = 2*pi*r1;
+    auto phi = 2 * pi * r1;
     auto x = cos(phi)*sqrt(r2);
     auto y = sin(phi)*sqrt(r2);
     auto z = sqrt(1-r2);

@@ -32,7 +32,7 @@ public:
     bool scatter(const Ray& ray, const HitRecord& rec, Vector3& outAttenuation, Ray& outScattered, double& outPDF) const override {
         ONB uvw;
         uvw.buildFromW(rec.normal);
-        auto scatterDirection = uvw.local(random_cosine_direction());
+        auto scatterDirection = uvw.local(randomCosineDirection());
 
         outScattered = Ray(rec.p, scatterDirection);
         outAttenuation = tex->value(rec.u, rec.v, rec.p);

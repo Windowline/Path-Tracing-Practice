@@ -23,4 +23,5 @@ add_executable(main.cpp
         src/external/stb_image.h
         src/Quad.hpp
         src/ONB.hpp
+        src/PDF.hpp
 )

@@ -14,7 +14,7 @@ public:
         return false;
     }
 
-    virtual Vector3 emitted(double u, double v, const Vector3& p) const {
+    virtual Vector3 emitted(const Ray& ray, const HitRecord& rec, double u, double v, const Vector3& p) const {
         return Vector3(0, 0, 0);
     }
 
@@ -76,7 +76,7 @@ public:
 
     bool scatter(const Ray& ray, const HitRecord& rec, Vector3& outAttenuation, Ray& outScattered, double& outPDF) const override {
         outAttenuation = Vector3(1.0, 1.0, 1.0);
-        double refractionRatio = rec.front_face ? (1.0 / ir) : ir;
+        double refractionRatio = rec.isFrontFace ? (1.0 / ir) : ir;
 
         Vector3 rayDir = unitVector(ray.direction());
         double cosTheta = fmin(dot(-rayDir, rec.normal), 1.0);
@@ -134,7 +134,9 @@ public:
     DiffuseLight(shared_ptr<Texture> tex) : tex(tex) {}
     DiffuseLight(const Vector3& emit) : tex(make_shared<SolidColor>(emit)) {}
 
-    Vector3 emitted(double u, double v, const Vector3& p) const override {
+    Vector3 emitted(const Ray& ray, const HitRecord& rec, double u, double v, const Vector3& p) const override {
+        if (!rec.isFrontFace)
+            return Vector3(0,0,0);
         return tex->value(u, v, p);
     }
 

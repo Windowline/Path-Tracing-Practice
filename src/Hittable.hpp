@@ -17,11 +17,11 @@ public:
     double t;
     double u;
     double v;
-    bool front_face;
+    bool isFrontFace;
 
     void setFaceNormal(const Ray& r, const Vector3& outwardNormal) {
-        front_face = dot(r.direction(), outwardNormal) < 0;
-        normal = front_face ? outwardNormal : -outwardNormal;
+        isFrontFace = dot(r.direction(), outwardNormal) < 0;
+        normal = isFrontFace ? outwardNormal : -outwardNormal;
     }
 };
 

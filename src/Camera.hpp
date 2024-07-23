@@ -68,15 +68,15 @@ private:
         pixel00Loc = viewportUpperLeft + 0.5 * (pixelDeltaU + pixelDeltaV);
     }
 
-    Vector3 rayColor(const Ray& r, int depth, const Hittable& world) const {
+    Vector3 rayColor(const Ray& ray, int depth, const Hittable& world) const {
         HitRecord rec;
 
         if (depth <= 0)
             return Vector3(0, 0, 0);
 
-        if (!world.hit(r, Interval(0.001, infinity), rec)) {
+        if (!world.hit(ray, Interval(0.001, infinity), rec)) {
             if (onSkyBackground) {
-                Vector3 rayDir = unitVector(r.direction());
+                Vector3 rayDir = unitVector(ray.direction());
                 auto a = 0.5 * (rayDir.y() + 1.0);
                 return (1.0 - a) * Vector3(1.0, 1.0, 1.0) + a * Vector3(0.5, 0.7, 1.0);
             } else {
@@ -87,13 +87,13 @@ private:
         Ray scattered;
         Vector3 attenuation;
         double PDF = 1.0;
-        bool isScattered = rec.mat->scatter(r, rec, attenuation, scattered, PDF);
-        Vector3 emissionColor = rec.mat->emitted(rec.u, rec.v, rec.p);
+        bool isScattered = rec.mat->scatter(ray, rec, attenuation, scattered, PDF);
+        Vector3 emissionColor = rec.mat->emitted(ray, rec, rec.u, rec.v, rec.p);
 
         if (!isScattered)
             return emissionColor;
 
-        double scatteringPDF = rec.mat->scatteringPDF(r, rec, scattered);
+        double scatteringPDF = rec.mat->scatteringPDF(ray, rec, scattered);
         assert(PDF >= 0.0 && PDF <= 1.0);
         assert(scatteringPDF >= 0.0 && scatteringPDF <= 1.0);
 

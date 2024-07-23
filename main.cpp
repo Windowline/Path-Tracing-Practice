@@ -45,9 +45,9 @@ void cornellBox() {
     world.add(make_shared<Quad>(Vector3(555, 555, 555), Vector3(-555, 0, 0), Vector3(0, 0, -555), white));
     world.add(make_shared<Quad>(Vector3(0, 0, 555), Vector3(555, 0, 0), Vector3(0, 555, 0), white));
 
-//    world.add(box(vec3(130, 0, 65), vec3(295, 165, 230), white));
-//    world.add(box(vec3(265, 0, 295), vec3(430, 330, 460), white));
-    shared_ptr<Hittable> box1 = box(Vector3(0, 0, 0), Vector3(165, 330, 165), white);
+//    shared_ptr<Hittable> box1 = box(Vector3(0, 0, 0), Vector3(165, 330, 165), white);
+    shared_ptr<Material> aluminum = make_shared<Metal>(Vector3(0.8, 0.85, 0.88), 0.0);
+    shared_ptr<Hittable> box1 = box(Vector3(0,0,0), Vector3(165,330,165), aluminum);
     box1 = make_shared<RotateY>(box1, 15);
     box1 = make_shared<Translate>(box1, Vector3(265, 0, 295));
     world.add(box1);

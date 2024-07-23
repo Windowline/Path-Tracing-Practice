@@ -87,36 +87,27 @@ private:
             }
         }
 
-        Ray scattered;
-        Vector3 attenuation;
+
         Vector3 emissionColor = rec.mat->emitted(ray, rec, rec.u, rec.v, rec.p);
-        double PDF = 1.0;
-        bool isScattered = rec.mat->scatter(ray, rec, attenuation, scattered, PDF);
+
+        ScatterRecord srec;
+        bool isScattered = rec.mat->scatter(ray, rec, srec);
 
         if (!isScattered)
             return emissionColor;
 
-        //1. Mix
-        auto p0 = make_shared<HittablePDF>(*light.get(), rec.p);
-        auto p1 = make_shared<CosinePDF>(rec.normal);
-        MixturePDF mixedPDF(p0, p1);
-        scattered = Ray(rec.p, mixedPDF.generateRandomVector(), ray.time());
-        PDF = mixedPDF.pdfValue(scattered.direction());
+        if (srec.isSkipPDF)
+            return srec.attenuation * rayColor(srec.skipPDFRay, depth - 1, world, light);
 
-        //2. Light Sampling
-//        HittablePDF lightPDF(*light.get(), rec.p);
-//        scattered = Ray(rec.p, lightPDF.generateRandomVector(), ray.time());
-//        PDF = lightPDF.pdfValue(scattered.direction()); // PDF = p(w)
+        auto lightPDF = make_shared<HittablePDF>(*light.get(), rec.p);
+        MixturePDF mixturePDF(lightPDF, srec.pdf);
 
-        //3. Cosine Sampling
-//        CosinePDF surfacePDF(rec.normal);
-//        scattered = Ray(rec.p, surfacePDF.generateRandomVector(), ray.time());
-//        PDF = surfacePDF.pdfValue(scattered.direction());
+        Ray scatterRay = Ray(rec.p, mixturePDF.generateRandomVector(), ray.time());
+        double PDF = mixturePDF.pdfValue(scatterRay.direction());
+        double scatteringPDF = rec.mat->scatteringPDF(ray, rec, scatterRay);
 
-        double scatteringPDF = rec.mat->scatteringPDF(ray, rec, scattered);
-
-        Vector3 sampleColor = rayColor(scattered, depth-1, world, light);
-        Vector3 scatterColor = (attenuation * scatteringPDF * sampleColor) / PDF;
+        Vector3 sampleColor = rayColor(scatterRay, depth - 1, world, light);
+        Vector3 scatterColor = (srec.attenuation * scatteringPDF * sampleColor) / PDF;
 
         return emissionColor + scatterColor;
     }

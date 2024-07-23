@@ -5,12 +5,21 @@
 #include "Utils.hpp"
 #include "Texture.hpp"
 #include "ONB.hpp"
+#include "PDF.hpp"
 
 class HitRecord;
 
+class ScatterRecord {
+public:
+    Vector3 attenuation;
+    shared_ptr<PDF> pdf;
+    bool isSkipPDF;
+    Ray skipPDFRay;
+};
+
 class Material {
 public:
-    virtual bool scatter(const Ray& ray, const HitRecord& rec, Vector3& outAttenuation, Ray& outScattered, double& outPDF) const {
+    virtual bool scatter(const Ray& ray, const HitRecord& rec, ScatterRecord& outSRec) const {
         return false;
     }
 
@@ -26,17 +35,13 @@ public:
 
 class Lambertian : public Material {
 public:
-    Lambertian(const Vector3& albedo) : tex(std::make_shared<SolidColor>(albedo)) {}
-    Lambertian(std::shared_ptr<Texture> tex) : tex(tex) {}
-    
-    bool scatter(const Ray& ray, const HitRecord& rec, Vector3& outAttenuation, Ray& outScattered, double& outPDF) const override {
-        ONB uvw;
-        uvw.buildFromW(rec.normal);
-        auto scatterDirection = uvw.local(randomCosineDirection());
+    explicit Lambertian(const Vector3& albedo) : tex(std::make_shared<SolidColor>(albedo)) {}
+    Lambertian(shared_ptr<Texture> tex) : tex(tex) {}
 
-        outScattered = Ray(rec.p, scatterDirection);
-        outAttenuation = tex->value(rec.u, rec.v, rec.p);
-        outPDF = dot(uvw.w(), outScattered.direction()) / pi; // (cos_theta / pi)
+    bool scatter(const Ray& ray, const HitRecord& rec, ScatterRecord& outSRec) const {
+        outSRec.attenuation = tex->value(rec.u, rec.v, rec.p);
+        outSRec.pdf = make_shared<CosinePDF>(rec.normal);
+        outSRec.isSkipPDF = false;
         return true;
     }
 
@@ -54,14 +59,14 @@ class Metal : public Material {
 public:
     Metal(const Vector3& a, double f) : albedo(a), fuzz(f < 1 ? f : 1) {}
 
-    bool scatter(const Ray& ray, const HitRecord& rec, Vector3& outAttenuation, Ray& outScattered, double& outPDF) const override {
-        Vector3 reflected = reflect(unitVector(ray.direction()), rec.normal);
-        outScattered = Ray(rec.p, reflected + fuzz * randomUnitVector());
-        outAttenuation = albedo;
-
-        outPDF = 1.0; // tmp
-
-        return (dot(outScattered.direction(), rec.normal) > 0);
+    bool scatter(const Ray& ray, const HitRecord& rec, ScatterRecord& outSRec) const override {
+        Vector3 reflected = reflect(ray.direction(), rec.normal);
+        reflected = unitVector(reflected) + (fuzz * randomUnitVector());
+        outSRec.attenuation = albedo;
+        outSRec.pdf = nullptr;
+        outSRec.isSkipPDF = true;
+        outSRec.skipPDFRay = Ray(rec.p, reflected, ray.time());
+        return true;
     }
 
 private:
@@ -74,8 +79,10 @@ class Dielectric : public Material {
 public:
     Dielectric(double index_of_refraction) : ir(index_of_refraction) {}
 
-    bool scatter(const Ray& ray, const HitRecord& rec, Vector3& outAttenuation, Ray& outScattered, double& outPDF) const override {
-        outAttenuation = Vector3(1.0, 1.0, 1.0);
+    bool scatter(const Ray& ray, const HitRecord& rec, ScatterRecord& outSRec) const override {
+        outSRec.attenuation = Vector3(1.0, 1.0, 1.0);
+        outSRec.pdf = nullptr;
+        outSRec.isSkipPDF = true;
         double refractionRatio = rec.isFrontFace ? (1.0 / ir) : ir;
 
         Vector3 rayDir = unitVector(ray.direction());
@@ -90,9 +97,8 @@ public:
         else
             scatterDir = refract(rayDir, rec.normal, refractionRatio);
 
-        outScattered = Ray(rec.p, scatterDir);
 
-        outPDF = 1.0; // tmp
+        outSRec.skipPDFRay = Ray(rec.p, scatterDir, ray.time());
 
         return true;
     }
@@ -114,10 +120,10 @@ public:
     Isotropic(const Vector3& albedo) : tex(make_shared<SolidColor>(albedo)) {}
     Isotropic(shared_ptr<Texture> tex) : tex(tex) {}
 
-    bool scatter(const Ray& ray, const HitRecord& rec, Vector3& outAttenuation, Ray& outScattered, double& outPDF) const override {
-        outAttenuation = tex->value(rec.u, rec.v, rec.p);
-        outScattered = Ray(rec.p, randomUnitVector(), ray.time());
-        outPDF = 1 / (4 * pi);
+    bool scatter(const Ray& ray, const HitRecord& rec, ScatterRecord& outSRec) const override {
+        outSRec.attenuation = tex->value(rec.u, rec.v, rec.p);
+        outSRec.pdf = make_shared<SpherePDF>();
+        outSRec.isSkipPDF = false;
         return true;
     }
 
@@ -143,5 +149,7 @@ public:
 private:
     shared_ptr<Texture> tex;
 };
+
+
 
 #endif

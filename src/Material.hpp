@@ -41,8 +41,8 @@ public:
     }
 
     double scatteringPDF(const Ray& ray, const HitRecord& rec, const Ray& scattered) const override {
-        auto cos_theta = dot(rec.normal, unitVector(scattered.direction()));
-        return cos_theta < 0 ? 0 : cos_theta/pi;
+        auto cosTheta = dot(rec.normal, unitVector(scattered.direction()));
+        return cosTheta < 0 ? 0 : cosTheta / pi;
     }
 
 private:

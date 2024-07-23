@@ -2,6 +2,7 @@
 #include "Color.hpp"
 #include "Hittable.hpp"
 #include "Material.hpp"
+#include "PDF.hpp"
 
 #include <iostream>
 
@@ -86,12 +87,16 @@ private:
 
         Ray scattered;
         Vector3 attenuation;
+        Vector3 emissionColor = rec.mat->emitted(ray, rec, rec.u, rec.v, rec.p);
         double PDF = 1.0;
         bool isScattered = rec.mat->scatter(ray, rec, attenuation, scattered, PDF);
-        Vector3 emissionColor = rec.mat->emitted(ray, rec, rec.u, rec.v, rec.p);
 
         if (!isScattered)
             return emissionColor;
+
+        cosinePDF surfacePDF(rec.normal);
+        scattered = Ray(rec.p, surfacePDF.generateRandomVector(), ray.time());
+        PDF = surfacePDF.pdfValue(scattered.direction());
 
         double scatteringPDF = rec.mat->scatteringPDF(ray, rec, scattered);
         assert(PDF >= 0.0 && PDF <= 1.0);

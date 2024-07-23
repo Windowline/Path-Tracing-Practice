@@ -96,14 +96,14 @@ private:
         if (!isScattered)
             return emissionColor;
 
-        if (srec.isSkipPDF)
+        if (srec.isSkipPDF)// pure reflect. ex) Metal
             return srec.attenuation * rayColor(srec.skipPDFRay, depth - 1, world, light);
 
         auto lightPDF = make_shared<HittablePDF>(*light.get(), rec.p);
         MixturePDF mixturePDF(lightPDF, srec.pdf);
 
         Ray scatterRay = Ray(rec.p, mixturePDF.generateRandomVector(), ray.time());
-        double PDF = mixturePDF.pdfValue(scatterRay.direction());
+        double PDF = mixturePDF.pdfValue(scatterRay.direction()); // PDF of whatever outgoing direction we randomly generate
         double scatteringPDF = rec.mat->scatteringPDF(ray, rec, scatterRay);
 
         Vector3 sampleColor = rayColor(scatterRay, depth - 1, world, light);

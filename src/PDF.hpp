@@ -24,9 +24,9 @@ public:
 };
 
 
-class cosinePDF : public PDF {
+class CosinePDF : public PDF {
 public:
-    cosinePDF(const Vector3& w) {
+    CosinePDF(const Vector3& w) {
         uvw.buildFromW(w);
     }
 
@@ -41,6 +41,27 @@ public:
 
 private:
     ONB uvw;
+};
+
+
+
+class HittablePDF : public PDF {
+public:
+    HittablePDF(const Hittable& hittableObj, const Vector3& origin)
+            : hittableObj(hittableObj), origin(origin)
+    {}
+
+    double pdfValue(const Vector3& direction) const override {
+        return hittableObj.pdfValue(origin, direction);
+    }
+
+    Vector3 generateRandomVector() const override {
+        return hittableObj.random(origin);
+    }
+
+private:
+    const Hittable& hittableObj;
+    Vector3 origin;
 };
 
 #endif //RAY_TRACING_ADVANCED_PDF_H

@@ -3,8 +3,10 @@
 #include "Hittable.hpp"
 #include "Material.hpp"
 #include "PDF.hpp"
-
+#include "Quad.hpp"
 #include <iostream>
+
+using namespace std;
 
 class Camera {
 public:
@@ -20,7 +22,7 @@ public:
     Vector3 lookAt = Vector3(0, 0, 0);
     Vector3 up = Vector3(0, 1, 0);
 
-    void render(const Hittable& world) {
+    void render(const Hittable& world, shared_ptr<Quad>& light) {
         initialize();
         std::cout << "P3\n" << imgWidth << ' ' << imgHeight << "\n255\n";
         for (int j = 0; j < imgHeight; ++j) {
@@ -29,7 +31,7 @@ public:
                 Vector3 pixel_color(0, 0, 0);
                 for (int sample = 0; sample < samplePerPixel; ++sample) {
                     Ray r = getRay(i, j);
-                    pixel_color += rayColor(r, maxDepth, world);
+                    pixel_color += rayColor(r, maxDepth, world, light);
                 }
                 writeColor(std::cout, pixel_color, samplePerPixel);
             }
@@ -69,7 +71,7 @@ private:
         pixel00Loc = viewportUpperLeft + 0.5 * (pixelDeltaU + pixelDeltaV);
     }
 
-    Vector3 rayColor(const Ray& ray, int depth, const Hittable& world) const {
+    Vector3 rayColor(const Ray& ray, int depth, const Hittable& world, shared_ptr<Quad>& light) const {
         HitRecord rec;
 
         if (depth <= 0)
@@ -94,15 +96,21 @@ private:
         if (!isScattered)
             return emissionColor;
 
-        cosinePDF surfacePDF(rec.normal);
-        scattered = Ray(rec.p, surfacePDF.generateRandomVector(), ray.time());
-        PDF = surfacePDF.pdfValue(scattered.direction());
-
         double scatteringPDF = rec.mat->scatteringPDF(ray, rec, scattered);
-        assert(PDF >= 0.0 && PDF <= 1.0);
-        assert(scatteringPDF >= 0.0 && scatteringPDF <= 1.0);
 
-        Vector3 scatterColor = (attenuation * scatteringPDF * rayColor(scattered, depth - 1, world)) / PDF;
+        HittablePDF lightPDF(*light.get(), rec.p);
+        scattered = Ray(rec.p, lightPDF.generateRandomVector(), ray.time());
+        PDF = lightPDF.pdfValue(scattered.direction());
+
+//        CosinePDF surfacePDF(rec.normal);
+//        scattered = Ray(rec.p, surfacePDF.generateRandomVector(), ray.time());
+//        PDF = surfacePDF.pdfValue(scattered.direction());
+
+//        assert(PDF >= 0.0 && PDF <= 1.0);
+//        assert(scatteringPDF >= 0.0 && scatteringPDF <= 1.0);
+
+        Vector3 sampleColor = rayColor(scattered, depth-1, world, light);
+        Vector3 scatterColor = (attenuation * scatteringPDF * sampleColor) / PDF;
 
         return emissionColor + scatterColor;
     }

@@ -36,11 +36,11 @@ void cornellBox() {
     auto red   = make_shared<Lambertian>(Vector3(.65, .05, .05));
     auto white = make_shared<Lambertian>(Vector3(.73, .73, .73));
     auto green = make_shared<Lambertian>(Vector3(.12, .45, .15));
-    auto light = make_shared<DiffuseLight>(Vector3(15, 15, 15));
+    auto lightMat = make_shared<DiffuseLight>(Vector3(15, 15, 15));
 
     world.add(make_shared<Quad>(Vector3(555, 0, 0), Vector3(0, 555, 0), Vector3(0, 0, 555), green));
     world.add(make_shared<Quad>(Vector3(0, 0, 0), Vector3(0, 555, 0), Vector3(0, 0, 555), red));
-    world.add(make_shared<Quad>(Vector3(343, 554, 332), Vector3(-130, 0, 0), Vector3(0, 0, -105), light));
+    world.add(make_shared<Quad>(Vector3(343, 554, 332), Vector3(-130, 0, 0), Vector3(0, 0, -105), lightMat));
     world.add(make_shared<Quad>(Vector3(0, 0, 0), Vector3(555, 0, 0), Vector3(0, 0, 555), white));
     world.add(make_shared<Quad>(Vector3(555, 555, 555), Vector3(-555, 0, 0), Vector3(0, 0, -555), white));
     world.add(make_shared<Quad>(Vector3(0, 0, 555), Vector3(555, 0, 0), Vector3(0, 555, 0), white));
@@ -57,6 +57,9 @@ void cornellBox() {
     box2 = make_shared<Translate>(box2, Vector3(130, 0, 65));
     world.add(box2);
 
+    auto light = make_shared<Quad>(Vector3(343,554,332), Vector3(-130,0,0), Vector3(0,0,-105),
+                              shared_ptr<Material>());
+
     Camera cam;
     cam.aspectRatio = 1.0;
     cam.imgWidth = 400;
@@ -68,7 +71,7 @@ void cornellBox() {
     cam.up = Vector3(0, 1, 0);
     cam.background = Vector3(0, 0, 0);
 
-    cam.render(world);
+    cam.render(world, light);
 }
 
 void bouncingSpheres() {
@@ -133,7 +136,7 @@ void bouncingSpheres() {
     camera.lookAt = Vector3(0, 0, 0);
     camera.up = Vector3(0, 1, 0);
 
-    camera.render(world);
+//    camera.render(world);
 }
 
 int main() {

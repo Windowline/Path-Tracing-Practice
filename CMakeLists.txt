@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.25)
 project(Ray_Tracing_Advanced)
 
 set(CMAKE_CXX_STANDARD 17)
-
-add_definitions("-Wno-c++11-extensions")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+#add_definitions("-Wno-c++11-extensions")
 
 add_executable(main.cpp
         src/Vector3.hpp

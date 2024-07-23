@@ -15,14 +15,31 @@ public:
         D = dot(normal, Q);
         w = n / dot(n,n);
 
-        set_bounding_box();
+        area = n.length();
+
+        setBoundingBox();
     }
 
-    virtual void set_bounding_box() {
-        // Compute the bounding box of all four vertices.
+    virtual void setBoundingBox() {
         auto bbox_diagonal1 = AABB(Q, Q + u + v);
         auto bbox_diagonal2 = AABB(Q + u, Q + v);
         bbox = AABB(bbox_diagonal1, bbox_diagonal2);
+    }
+
+    double pdfValue(const Vector3& origin, const Vector3& direction) const override {
+        HitRecord rec;
+        if (!this->hit(Ray(origin, direction), Interval(0.001, infinity), rec))
+            return 0;
+
+        auto distanceSquared = rec.t * rec.t * direction.length_squared();
+        auto cosine = fabs(dot(direction, rec.normal) / direction.length());
+
+        return distanceSquared / (cosine * area);
+    }
+
+    Vector3 random(const Vector3& origin) const override {
+        auto p = Q + (randomDouble() * u) + (randomDouble() * v);
+        return p - origin;
     }
 
     AABB boundingBox() const override { return bbox; }
@@ -73,6 +90,7 @@ private:
     AABB bbox;
     Vector3 normal;
     double D;
+    double area;
 };
 
 #endif

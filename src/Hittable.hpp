@@ -30,6 +30,14 @@ public:
     virtual bool hit(const Ray& r, Interval ray_t, HitRecord& outRec) const = 0;
 
     virtual AABB boundingBox() const = 0;
+
+    virtual double pdfValue(const Vector3& origin, const Vector3& direction) const {
+        return 0.0;
+    }
+
+    virtual Vector3 random(const Vector3& origin) const {
+        return Vector3(1, 0, 0);
+    }
 };
 
 

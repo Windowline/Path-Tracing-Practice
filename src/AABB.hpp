@@ -28,7 +28,7 @@ public:
         z = Interval(box0.z, box1.z);
     }
 
-    const Interval& axis_interval(int n) const {
+    const Interval& axisInterval(int n) const {
         if (n == 1) return y;
         if (n == 2) return z;
         return x;
@@ -39,7 +39,7 @@ public:
         const Vector3&   ray_dir  = r.direction();
 
         for (int axis = 0; axis < 3; axis++) {
-            const Interval& ax = axis_interval(axis);
+            const Interval& ax = axisInterval(axis);
             const double adinv = 1.0 / ray_dir[axis];
 
             auto t0 = (ax.min - ray_orig[axis]) * adinv;

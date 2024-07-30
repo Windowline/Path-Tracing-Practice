@@ -17,14 +17,14 @@ public:
         build(objects, start, end);
     }
 
-    bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const override {
-        if (!bbox.hit(r, ray_t))
+    bool hit(const Ray& ray, Interval interval, HitRecord& rec) const override {
+        if (!bbox.hit(ray, interval))
             return false;
 
-        bool hit_left = left->hit(r, ray_t, rec);
-        bool hit_right = right->hit(r, Interval(ray_t.min, hit_left ? rec.t : ray_t.max), rec);
+        bool hitLeft = left->hit(ray, interval, rec);
+        bool hitRight = right->hit(ray, Interval(interval.min, hitLeft ? rec.t : interval.max), rec);
 
-        return hit_left || hit_right;
+        return hitLeft || hitRight;
     }
 
     AABB boundingBox() const override {
@@ -34,8 +34,8 @@ public:
 private:
     void build(std::vector< std::shared_ptr<Hittable> >& objects, size_t start, size_t end) {
         bbox = AABB::empty;
-        for (size_t object_index=start; object_index < end; object_index++)
-            bbox = AABB(bbox, objects[object_index]->boundingBox());
+        for (size_t index=start; index < end; index++)
+            bbox = AABB(bbox, objects[index]->boundingBox());
 
         int axis = bbox.longestAxis();
 
@@ -43,17 +43,17 @@ private:
                                       : (axis == 1) ? boxCompareY
                                                     : boxCompareZ;
 
-        size_t object_span = end - start;
+        size_t span = end - start;
 
-        if (object_span == 1) {
+        if (span == 1) {
             left = right = objects[start];
-        } else if (object_span == 2) {
+        } else if (span == 2) {
             left = objects[start];
             right = objects[start+1];
         } else {
             std::sort(objects.begin() + start, objects.begin() + end, comparator);
 
-            auto mid = start + object_span/2;
+            auto mid = start + span / 2;
             left = make_shared<BVHNode>(objects, start, mid);
             right = make_shared<BVHNode>(objects, mid, end);
         }
@@ -62,9 +62,9 @@ private:
     }
 
     static bool boxCompare(const shared_ptr<Hittable> a, const shared_ptr<Hittable> b, int axis_index) {
-        auto a_axis_interval = a->boundingBox().axis_interval(axis_index);
-        auto b_axis_interval = b->boundingBox().axis_interval(axis_index);
-        return a_axis_interval.min < b_axis_interval.min;
+        auto axisIntervalA = a->boundingBox().axisInterval(axis_index);
+        auto axisIntervalB = b->boundingBox().axisInterval(axis_index);
+        return axisIntervalA.min < axisIntervalB.min;
     }
 
     static bool boxCompareX(const shared_ptr<Hittable> a, const shared_ptr<Hittable> b) {

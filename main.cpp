@@ -45,26 +45,24 @@ void cornellBox() {
     world.add(make_shared<Quad>(Vector3(555, 555, 555), Vector3(-555, 0, 0), Vector3(0, 0, -555), white));
     world.add(make_shared<Quad>(Vector3(0, 0, 555), Vector3(555, 0, 0), Vector3(0, 555, 0), white));
 
-//    shared_ptr<Hittable> box1 = box(Vector3(0, 0, 0), Vector3(165, 330, 165), white);
-    shared_ptr<Material> aluminum = make_shared<Metal>(Vector3(0.8, 0.85, 0.88), 0.0);
-    shared_ptr<Hittable> box1 = box(Vector3(0,0,0), Vector3(165,330,165), aluminum);
+    // Box
+    shared_ptr<Hittable> box1 = box(Vector3(0,0,0), Vector3(165,330,165), white);
     box1 = make_shared<RotateY>(box1, 15);
-    box1 = make_shared<Translate>(box1, Vector3(265, 0, 295));
+    box1 = make_shared<Translate>(box1, Vector3(265,0,295));
     world.add(box1);
 
-    shared_ptr<Hittable> box2 = box(Vector3(0, 0, 0), Vector3(165, 165, 165), white);
-    box2 = make_shared<RotateY>(box2, -18);
-    box2 = make_shared<Translate>(box2, Vector3(130, 0, 65));
-    world.add(box2);
+    // Glass Sphere
+    auto glass = make_shared<Dielectric>(1.5);
+    world.add(make_shared<Sphere>(Vector3(190,90,190), 90, glass));
 
     auto light = make_shared<Quad>(Vector3(343,554,332), Vector3(-130,0,0), Vector3(0,0,-105),
                               shared_ptr<Material>());
 
     Camera cam;
     cam.aspectRatio = 1.0;
-    cam.imgWidth = 1200;
-    cam.samplePerPixel = 60;
-    cam.maxDepth = 50;
+    cam.imgWidth = 1200 / 4;
+    cam.samplePerPixel = 60 / 4;
+    cam.maxDepth = 50 / 5;
     cam.fovy = 30;
     cam.camPos = Vector3(278, 278, -800);
     cam.lookAt = Vector3(278, 278, 0);

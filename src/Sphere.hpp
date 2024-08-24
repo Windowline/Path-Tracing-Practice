@@ -5,6 +5,7 @@
 #include "Material.hpp"
 #include "Vector3.hpp"
 #include "AABB.hpp"
+#include "ONB.hpp"
 
 class Sphere : public Hittable {
 public:
@@ -46,12 +47,42 @@ public:
 
     AABB boundingBox() const override { return bbox; }
 
+    double pdfValue(const Vector3& origin, const Vector3& direction) const override {
+        HitRecord rec;
+        if (!this->hit(Ray(origin, direction), Interval(0.001, infinity), rec))
+            return 0;
+
+        auto cos_theta_max = std::sqrt(1 - radius * radius / (center - origin).lengthSquared());
+        auto solid_angle = 2 * pi * (1 - cos_theta_max);
+        return  1 / solid_angle;
+    }
+
+    Vector3 random(const Vector3& origin) const override {
+        Vector3 direction = center - origin;
+        auto distance_squared = direction.lengthSquared();
+        ONB uvw;
+        uvw.buildFromW(direction);
+        return uvw.local(randomToSphere(radius, distance_squared));
+    }
+
 private:
     static void getSphereUV(const Vector3& p, double& u, double& v) {
         auto theta = acos(-p.y());
         auto phi = atan2(-p.z(), p.x()) + pi;
         u = phi / (2*pi);
         v = theta / pi;
+    }
+
+    static Vector3 randomToSphere(double radius, double distance_squared) {
+        auto r1 = randomDouble();
+        auto r2 = randomDouble();
+        auto z = 1 + r2*(std::sqrt(1-radius*radius/distance_squared) - 1);
+
+        auto phi = 2*pi*r1;
+        auto x = std::cos(phi) * std::sqrt(1-z*z);
+        auto y = std::sin(phi) * std::sqrt(1-z*z);
+
+        return Vector3(x, y, z);
     }
 
 

@@ -1,7 +1,5 @@
 # Ray Tracing Practice (CPU)
-![image](https://github.com/Windowline/RayTracing-Practice/assets/17508384/cca973b3-c5ed-4173-b422-f10521066b20)
-![image](https://github.com/user-attachments/assets/ef048d30-cabd-4e2d-a0df-6c0ea5e2a5ca)
-
+![image](https://github.com/user-attachments/assets/c80fb38e-d3eb-4339-acd3-a1b3a4729f7f)
 
 # Reference
 - https://raytracing.github.io/

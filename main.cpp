@@ -55,21 +55,23 @@ void cornellBox() {
     auto glass = make_shared<Dielectric>(1.5);
     world.add(make_shared<Sphere>(Vector3(190,90,190), 90, glass));
 
-    auto light = make_shared<Quad>(Vector3(343,554,332), Vector3(-130,0,0), Vector3(0,0,-105),
-                              shared_ptr<Material>());
+    auto emptyMaterial = shared_ptr<Material>();
+    HittableList lights;
+    lights.add(make_shared<Quad>(Vector3(343,554,332), Vector3(-130,0,0), Vector3(0,0,-105), emptyMaterial));
+    lights.add(make_shared<Sphere>(Vector3(190, 90, 190), 90, emptyMaterial));
 
     Camera cam;
     cam.aspectRatio = 1.0;
-    cam.imgWidth = 1200 / 4;
-    cam.samplePerPixel = 60 / 4;
-    cam.maxDepth = 50 / 5;
+    cam.imgWidth = 1200;
+    cam.samplePerPixel = 60;
+    cam.maxDepth = 50;
     cam.fovy = 30;
     cam.camPos = Vector3(278, 278, -800);
     cam.lookAt = Vector3(278, 278, 0);
     cam.up = Vector3(0, 1, 0);
     cam.background = Vector3(0, 0, 0);
 
-    cam.render(world, light);
+    cam.render(world, lights);
 }
 
 void bouncingSpheres() {

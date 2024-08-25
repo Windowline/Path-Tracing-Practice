@@ -38,6 +38,20 @@ public:
 
     AABB boundingBox() const override { return bbox; }
 
+    double pdfValue(const Vector3& origin, const Vector3& direction) const override {
+        auto weight = 1.0 / objects.size();
+        auto sum = 0.0;
+
+        for (const auto& object : objects)
+            sum += weight * object->pdfValue(origin, direction);
+
+        return sum;
+    }
+
+    Vector3 random(const Vector3& origin) const override {
+        auto intSize = int(objects.size());
+        return objects[randomInt(0, intSize - 1)]->random(origin);
+    }
 
 private:
     AABB bbox;

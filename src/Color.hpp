@@ -17,6 +17,11 @@ void writeColor(std::ostream &out, Vector3 pixelColor, int samplesPerPixel) {
     auto g = pixelColor.y();
     auto b = pixelColor.z();
 
+    // Replace NaN components with zero.
+    if (r != r) r = 0.0;
+    if (g != g) g = 0.0;
+    if (b != b) b = 0.0;
+
     auto scale = 1.0 / samplesPerPixel;
     r *= scale;
     g *= scale;

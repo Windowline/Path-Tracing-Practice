@@ -22,22 +22,22 @@ public:
     Vector3 lookAt = Vector3(0, 0, 0);
     Vector3 up = Vector3(0, 1, 0);
 
-    void render(const Hittable& world, shared_ptr<Quad>& light) {
+    void render(const Hittable& world, const Hittable& lights) {
         initialize();
         std::cout << "P3\n" << imgWidth << ' ' << imgHeight << "\n255\n";
         for (int j = 0; j < imgHeight; ++j) {
             std::clog << "\rScanlines remaining: " << (imgHeight - j) << ' ' << std::flush;
             for (int i = 0; i < imgWidth; ++i) {
-                Vector3 pixel_color(0, 0, 0);
+                Vector3 pixelColor(0, 0, 0);
                 for (int sample = 0; sample < samplePerPixel; ++sample) {
-                    Ray r = getRay(i, j);
-                    pixel_color += rayColor(r, maxDepth, world, light);
+                    Ray ray = getRay(i, j);
+                    pixelColor += rayColor(ray, maxDepth, world, lights);
                 }
-                writeColor(std::cout, pixel_color, samplePerPixel);
+                writeColor(std::cout, pixelColor, samplePerPixel);
             }
         }
 
-        std::clog << "\rDone.                 \n";
+        std::clog << "\rDone.\n";
     }
 
 private:
@@ -71,7 +71,7 @@ private:
         pixel00Loc = viewportUpperLeft + 0.5 * (pixelDeltaU + pixelDeltaV);
     }
 
-    Vector3 rayColor(const Ray& ray, int depth, const Hittable& world, shared_ptr<Quad>& light) const {
+    Vector3 rayColor(const Ray& ray, int depth, const Hittable& world, const Hittable& lights) const {
         HitRecord rec;
 
         if (depth <= 0)
@@ -87,7 +87,6 @@ private:
             }
         }
 
-
         Vector3 emissionColor = rec.mat->emitted(ray, rec, rec.u, rec.v, rec.p);
 
         ScatterRecord srec;
@@ -97,16 +96,16 @@ private:
             return emissionColor;
 
         if (srec.isSkipPDF)// pure reflect. ex) Metal
-            return srec.attenuation * rayColor(srec.skipPDFRay, depth - 1, world, light);
+            return srec.attenuation * rayColor(srec.skipPDFRay, depth - 1, world, lights);
 
-        auto lightPDF = make_shared<HittablePDF>(*light.get(), rec.p);
+        auto lightPDF = make_shared<HittablePDF>(lights, rec.p);
         MixturePDF mixturePDF(lightPDF, srec.pdf);
 
         Ray scatterRay = Ray(rec.p, mixturePDF.generateRandomVector(), ray.time());
         double PDF = mixturePDF.pdfValue(scatterRay.direction()); // PDF of whatever outgoing direction we randomly generate
         double scatteringPDF = rec.mat->scatteringPDF(ray, rec, scatterRay);
 
-        Vector3 sampleColor = rayColor(scatterRay, depth - 1, world, light);
+        Vector3 sampleColor = rayColor(scatterRay, depth - 1, world, lights);
         Vector3 scatterColor = (srec.attenuation * scatteringPDF * sampleColor) / PDF;
 
         return emissionColor + scatterColor;

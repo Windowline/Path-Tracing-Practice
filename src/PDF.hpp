@@ -31,8 +31,8 @@ public:
     }
 
     double pdfValue(const Vector3& dir) const override {
-        auto cosineTheta = dot(unitVector(dir), uvw.w());
-        return fmax(0, cosineTheta / pi);
+        auto cosTheta = dot(unitVector(dir), uvw.w());
+        return fmax(0, cosTheta / pi);
     }
 
     Vector3 generateRandomVector() const override {

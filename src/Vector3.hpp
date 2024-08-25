@@ -132,30 +132,30 @@ inline Vector3 randomCosineDirection() {
     auto r2 = randomDouble();
 
     auto phi = 2 * pi * r1;
-    auto x = cos(phi)*sqrt(r2);
-    auto y = sin(phi)*sqrt(r2);
-    auto z = sqrt(1-r2);
+    auto x = cos(phi) * sqrt(r2);
+    auto y = sin(phi) * sqrt(r2);
+    auto z = sqrt(1 - r2);
 
     return Vector3(x, y, z);
 }
 
 inline Vector3 randomHemisphere(const Vector3& normal) {
-    Vector3 on_unit_sphere = randomUnitVector();
-    if (dot(on_unit_sphere, normal) > 0.0) // In the same hemisphere as the normal
-        return on_unit_sphere;
+    Vector3 onUnitSphere = randomUnitVector();
+    if (dot(onUnitSphere, normal) > 0.0) // In the same hemisphere as the normal
+        return onUnitSphere;
     else
-        return -on_unit_sphere;
+        return -onUnitSphere;
 }
 
 Vector3 reflect(const Vector3& v, const Vector3& n) {
-    return v - 2*dot(v,n)*n;
+    return v - 2 * dot(v,n) * n;
 }
 
-inline Vector3 refract(const Vector3& uv, const Vector3& n, double etai_over_etat) {
-    auto cos_theta = fmin(dot(-uv, n), 1.0);
-    Vector3 r_out_perp = etai_over_etat * (uv + cos_theta * n);
-    Vector3 r_out_parallel = -sqrt(fabs(1.0 - r_out_perp.lengthSquared())) * n;
-    return r_out_perp + r_out_parallel;
+inline Vector3 refract(const Vector3& uv, const Vector3& n, double etaiOverEtat) {
+    auto cosTheta = fmin(dot(-uv, n), 1.0);
+    Vector3 rOutPerp = etaiOverEtat * (uv + cosTheta * n);
+    Vector3 rOutParallel = -sqrt(fabs(1.0 - rOutPerp.lengthSquared())) * n;
+    return rOutPerp + rOutParallel;
 }
 
 #endif

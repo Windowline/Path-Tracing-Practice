@@ -1,5 +1,9 @@
 # Ray Tracing Practice (CPU)
-![image](https://github.com/user-attachments/assets/c80fb38e-d3eb-4339-acd3-a1b3a4729f7f)
+SPP: 1000
+Max Bouncing: 50
+![image](https://github.com/user-attachments/assets/b76ddf0b-e1db-4f27-80a3-73d0fa6b892c)
+
+
 
 # Reference
 - https://raytracing.github.io/

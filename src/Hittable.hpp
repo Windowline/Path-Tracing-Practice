@@ -83,9 +83,9 @@ public:
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {
                 for (int k = 0; k < 2; k++) {
-                    auto x = i*bbox.x.max + (1-i)*bbox.x.min;
-                    auto y = j*bbox.y.max + (1-j)*bbox.y.min;
-                    auto z = k*bbox.z.max + (1-k)*bbox.z.min;
+                    auto x = i * bbox.x.max + (1 - i) * bbox.x.min;
+                    auto y = j * bbox.y.max + (1 - j) * bbox.y.min;
+                    auto z = k * bbox.z.max + (1 - k) * bbox.z.min;
 
                     auto newx = cosTheta * x + sinTheta * z;
                     auto newz = -sinTheta * x + cosTheta * z;

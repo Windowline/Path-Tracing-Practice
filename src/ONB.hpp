@@ -24,13 +24,13 @@ public:
     }
 
     void buildFromW(const Vector3& w) {
-        Vector3 unit_w = unitVector(w);
-        Vector3 a = (fabs(unit_w.x()) > 0.9) ? Vector3(0,1,0) : Vector3(1,0,0);
-        Vector3 v = unitVector(cross(unit_w, a));
-        Vector3 u = cross(unit_w, v);
+        Vector3 unitW = unitVector(w);
+        Vector3 a = (fabs(unitW.x()) > 0.9) ? Vector3(0, 1, 0) : Vector3(1, 0, 0);
+        Vector3 v = unitVector(cross(unitW, a));
+        Vector3 u = cross(unitW, v);
         axis[0] = u;
         axis[1] = v;
-        axis[2] = unit_w;
+        axis[2] = unitW;
     }
 
 public:

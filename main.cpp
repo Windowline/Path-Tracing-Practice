@@ -63,9 +63,9 @@ void cornellBox() {
     Camera cam;
     cam.aspectRatio = 1.0;
     cam.imgWidth = 1200;
-    cam.samplePerPixel = 60;
+    cam.samplePerPixel = 1000;
     cam.maxDepth = 50;
-    cam.fovy = 30;
+    cam.fovy = 40;
     cam.camPos = Vector3(278, 278, -800);
     cam.lookAt = Vector3(278, 278, 0);
     cam.up = Vector3(0, 1, 0);

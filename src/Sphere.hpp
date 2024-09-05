@@ -22,8 +22,9 @@ public:
         auto half_b = dot(oc, r.direction());
         auto c = oc.lengthSquared() - radius * radius;
 
-        auto discriminant = half_b*half_b - a*c;
-        if (discriminant < 0) return false;
+        auto discriminant = half_b * half_b - a*c;
+        if (discriminant < 0)
+            return false;
         auto sqrtd = sqrt(discriminant);
 
         // Find the nearest root that lies in the acceptable range.
@@ -37,9 +38,9 @@ public:
         outRec.t = root;
         outRec.p = r.at(outRec.t);
 
-        Vector3 outward_normal = (outRec.p - center) / radius;
-        outRec.setFaceNormal(r, outward_normal);
-        getSphereUV(outward_normal, outRec.u, outRec.v);
+        Vector3 outwardNormal = (outRec.p - center) / radius;
+        outRec.setFaceNormal(r, outwardNormal);
+        getSphereUV(outwardNormal, outRec.u, outRec.v);
         outRec.mat = mat;
 
         return true;
@@ -52,35 +53,35 @@ public:
         if (!this->hit(Ray(origin, direction), Interval(0.001, infinity), rec))
             return 0;
 
-        auto cos_theta_max = std::sqrt(1 - radius * radius / (center - origin).lengthSquared());
-        auto solid_angle = 2 * pi * (1 - cos_theta_max);
-        return  1 / solid_angle;
+        auto cosThetaMax = sqrt(1 - radius * radius / (center - origin).lengthSquared());
+        auto solidAngle = 2 * pi * (1 - cosThetaMax);
+        return 1 / solidAngle;
     }
 
     Vector3 random(const Vector3& origin) const override {
         Vector3 direction = center - origin;
-        auto distance_squared = direction.lengthSquared();
+        auto distanceSquared = direction.lengthSquared();
         ONB uvw;
         uvw.buildFromW(direction);
-        return uvw.local(randomToSphere(radius, distance_squared));
+        return uvw.local(randomToSphere(radius, distanceSquared));
     }
 
 private:
     static void getSphereUV(const Vector3& p, double& u, double& v) {
         auto theta = acos(-p.y());
         auto phi = atan2(-p.z(), p.x()) + pi;
-        u = phi / (2*pi);
+        u = phi / (2 * pi);
         v = theta / pi;
     }
 
     static Vector3 randomToSphere(double radius, double distance_squared) {
         auto r1 = randomDouble();
         auto r2 = randomDouble();
-        auto z = 1 + r2*(std::sqrt(1-radius*radius/distance_squared) - 1);
+        auto z = 1 + r2 * (std::sqrt(1 - radius * radius / distance_squared) - 1);
 
-        auto phi = 2*pi*r1;
-        auto x = std::cos(phi) * std::sqrt(1-z*z);
-        auto y = std::sin(phi) * std::sqrt(1-z*z);
+        auto phi = 2 * pi * r1;
+        auto x = cos(phi) * sqrt(1-z*z);
+        auto y = sin(phi) * sqrt(1-z*z);
 
         return Vector3(x, y, z);
     }

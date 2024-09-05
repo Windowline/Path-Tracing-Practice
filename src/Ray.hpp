@@ -17,7 +17,7 @@ public:
     Vector3 direction() const { return dir; }
 
     Vector3 at(double t) const {
-        return orig + t*dir;
+        return orig + t * dir;
     }
 
     double time() const { return tm; }
